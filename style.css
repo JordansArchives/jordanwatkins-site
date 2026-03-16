@@ -395,6 +395,7 @@
 /* --- Topbar buttons --- */
 .topbar-hamburger {
   display: none;
+  color: var(--green-dark);
 }
 
 .topbar-collapse-btn {
@@ -403,7 +404,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  color: var(--text-muted);
+  color: var(--green-dark);
   transition: all var(--duration-fast) var(--ease-out);
 }
 

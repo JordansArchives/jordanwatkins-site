@@ -64,10 +64,11 @@
     var displaySize = Math.round(icon.size * cfg.scale * mobileScale);
     var adjustedY = icon.y;
 
+    // Shift all icons down 50px from their base position
     el.style.cssText = [
       'position: absolute',
       'left: ' + icon.x + '%',
-      'top: ' + adjustedY + '%',
+      'top: calc(' + adjustedY + '% + 50px)',
       'width: ' + displaySize + 'px',
       'height: ' + displaySize + 'px',
       'z-index: ' + cfg.z,
