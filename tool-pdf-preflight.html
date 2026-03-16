@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Preflight — Jordan's Archives</title>
+<meta name="description" content="Analyse a PDF for print readiness. Check fonts, colours, images, transparency, bleed and more. Free tool, no signup required.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+
+<!-- Styles -->
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="tools-page.css">
+
+<!-- Favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='24' font-size='24' fill='%231a2d14'>J</text></svg>" type="image/svg+xml">
+
+<!-- pdf-lib (UMD) -->
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+<style>
+/* Drop zone */
+.pf-drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 0.75rem;
+  padding: 2.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.pf-drop-zone:hover, .pf-drop-zone.drag-active {
+  border-color: var(--green);
+  background: rgba(55, 72, 28, 0.03);
+}
+.pf-drop-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1rem;
+  color: var(--text-faint);
+}
+.pf-drop-title { font-size: 1.125rem; font-weight: 500; }
+.pf-drop-sub { font-size: 0.875rem; color: var(--text-faint); margin-top: 0.25rem; }
+
+/* File info bar */
+.pf-file-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+}
+.pf-file-icon { width: 40px; height: 40px; color: var(--text-faint); flex-shrink: 0; }
+.pf-file-info { flex: 1; min-width: 0; }
+.pf-file-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-file-size { font-size: 0.875rem; color: var(--text-faint); }
+.pf-file-remove {
+  background: none; border: none; cursor: pointer; color: var(--text-faint);
+  padding: 0.25rem; border-radius: 0.25rem; transition: color 0.15s;
+}
+.pf-file-remove:hover { color: var(--text); }
+.pf-file-remove svg { width: 16px; height: 16px; }
+
+/* Error */
+.pf-error { font-size: 0.875rem; color: var(--red); }
+
+/* Spinner */
+.pf-spinner {
+  display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  padding: 3rem 0; color: var(--text-faint);
+}
+.pf-spin-icon {
+  width: 20px; height: 20px;
+  animation: pf-spin 1s linear infinite;
+}
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+
+/* Report layout */
+.pf-report {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .pf-report { grid-template-columns: 1fr 1fr; }
+}
+
+/* Preview panel */
+.pf-preview-canvas-wrap {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--bg-muted);
+}
+.pf-preview-canvas-wrap canvas { display: block; width: 100%; height: auto; }
+.pf-page-nav {
+  display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  margin-top: var(--space-3);
+}
+.pf-page-nav-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem;
+  border: 1px solid var(--border); border-radius: 0.375rem;
+  background: var(--bg); cursor: pointer; transition: border-color 0.15s;
+}
+.pf-page-nav-btn:hover:not(:disabled) { border-color: var(--green); }
+.pf-page-nav-btn:disabled { opacity: 0.4; cursor: default; }
+.pf-page-nav-btn svg { width: 16px; height: 16px; }
+.pf-page-label { font-size: 0.875rem; color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+/* Legend */
+.pf-legend {
+  display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.75rem; color: var(--text-faint);
+  margin-top: var(--space-2);
+}
+.pf-legend-item { display: flex; align-items: center; gap: 0.375rem; }
+.pf-legend-line { width: 1rem; height: 0; border-top: 2px dashed; }
+
+/* Page dimensions */
+.pf-dims { font-size: 0.75rem; color: var(--text-faint); margin-top: var(--space-3); }
+.pf-dims p { margin: 0.25rem 0; }
+.pf-dims .pf-dim-label { font-weight: 500; }
+
+/* Pass / fail banner */
+.pf-banner {
+  display: flex; align-items: center; gap: 0.75rem;
+  border-radius: 0.5rem; padding: 1rem;
+}
+.pf-banner.pass { background: rgba(34, 197, 94, 0.08); color: #15803d; }
+.pf-banner.fail { background: rgba(239, 68, 68, 0.08); color: #b91c1c; }
+.pf-banner-icon { width: 24px; height: 24px; flex-shrink: 0; }
+.pf-banner-title { font-weight: 600; }
+.pf-banner-sub { font-size: 0.875rem; opacity: 0.8; }
+
+/* Severity chips */
+.pf-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pf-chip {
+  display: inline-block; border-radius: 9999px; padding: 0.125rem 0.625rem;
+  font-size: 0.75rem; font-weight: 500;
+}
+.pf-chip-error { background: rgba(239,68,68,0.1); color: #b91c1c; }
+.pf-chip-warning { background: rgba(245,158,11,0.1); color: #92400e; }
+.pf-chip-info { background: rgba(59,130,246,0.1); color: #1d4ed8; }
+.pf-chip-pass { background: rgba(34,197,94,0.1); color: #15803d; }
+
+/* Summary grid */
+.pf-summary {
+  display: grid; grid-template-columns: auto 1fr; gap: 0.375rem 1rem;
+  font-size: 0.875rem;
+}
+.pf-summary-label { color: var(--text-faint); }
+
+/* Separator */
+.pf-sep { border: none; border-top: 1px solid var(--border); margin: var(--space-3) 0; }
+
+/* Section title */
+.pf-section-title { font-size: 0.875rem; font-weight: 600; margin-bottom: var(--space-2); }
+
+/* Font list */
+.pf-font-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  font-size: 0.875rem; padding: 0.125rem 0;
+}
+.pf-font-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-font-type { font-size: 0.75rem; color: var(--text-faint); margin-left: 0.25rem; }
+.pf-font-status { flex-shrink: 0; display: flex; align-items: center; gap: 0.375rem; }
+.pf-font-embedded { font-size: 0.75rem; color: #15803d; }
+.pf-font-not-embedded { font-size: 0.75rem; color: #b91c1c; }
+.pf-font-dl {
+  background: none; border: none; cursor: pointer; color: var(--text-faint);
+  padding: 0.125rem; transition: color 0.15s;
+}
+.pf-font-dl:hover { color: var(--text); }
+.pf-font-dl svg { width: 14px; height: 14px; }
+
+/* Issue cards */
+.pf-issue-cat-title {
+  font-size: 0.75rem; font-weight: 500; color: var(--text-faint);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2);
+}
+.pf-issue-card {
+  display: flex; align-items: flex-start; gap: 0.5rem;
+  border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.75rem;
+  margin-bottom: 0.5rem; width: 100%; text-align: left;
+  background: transparent; cursor: default; font-family: var(--font-body);
+  transition: background-color 0.15s;
+}
+.pf-issue-card.clickable { cursor: pointer; }
+.pf-issue-card.clickable:hover { background: var(--bg-muted); }
+.pf-issue-icon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+.pf-issue-icon.error { color: #ef4444; }
+.pf-issue-icon.warning { color: #f59e0b; }
+.pf-issue-icon.info { color: #3b82f6; }
+.pf-issue-msg { font-size: 0.875rem; font-weight: 500; }
+.pf-issue-page { font-size: 0.75rem; color: var(--text-faint); font-weight: 400; margin-left: 0.375rem; }
+.pf-issue-details { font-size: 0.75rem; color: var(--text-faint); margin-top: 0.25rem; }
+
+/* Page issues (left panel) */
+.pf-page-issue {
+  display: flex; align-items: flex-start; gap: 0.5rem;
+  border: 1px solid var(--border); border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem; margin-bottom: 0.375rem;
+}
+.pf-page-issue-icon { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; }
+
+/* Issues by page */
+.pf-bypage-title {
+  font-size: 0.75rem; font-weight: 500; color: var(--text-faint);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;
+  background: none; border: none; cursor: pointer; padding: 0;
+  font-family: var(--font-body); transition: color 0.15s;
+}
+.pf-bypage-title:hover { color: var(--text); }
+.pf-bypage-row {
+  display: flex; align-items: flex-start; gap: 0.5rem;
+  padding: 0.375rem 0.5rem; border-radius: 0.375rem;
+  cursor: pointer; transition: background-color 0.15s;
+  background: none; border: none; width: 100%; text-align: left;
+  font-family: var(--font-body);
+}
+.pf-bypage-row:hover { background: var(--bg-muted); }
+.pf-bypage-row svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; }
+.pf-bypage-row span { font-size: 0.75rem; }
+
+/* Taxiway CTA */
+.pf-taxiway {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 0.75rem;
+  border: 1px solid rgba(245,158,11,0.1); border-radius: 0.5rem;
+  background: rgba(245,158,11,0.02); padding: 0.75rem 1rem;
+  text-decoration: none; transition: border-color 0.2s, background-color 0.2s;
+  margin-top: var(--space-2);
+}
+.pf-taxiway:hover { border-color: rgba(245,158,11,0.25); background: rgba(245,158,11,0.05); }
+.pf-taxiway-text { font-size: 0.75rem; font-weight: 500; color: rgba(180,83,9,0.7); flex: 1; }
+.pf-taxiway:hover .pf-taxiway-text { color: #b45309; }
+.pf-taxiway-icon { width: 14px; height: 14px; flex-shrink: 0; color: rgba(245,158,11,0.4); }
+.pf-taxiway:hover .pf-taxiway-icon { color: rgba(245,158,11,0.7); }
+
+/* Preview unavailable */
+.pf-preview-unavail {
+  border: 1px solid var(--border); border-radius: 0.5rem;
+  padding: 2rem; text-align: center; color: var(--text-faint); font-size: 0.875rem;
+}
+</style>
+</head>
+<body>
+
+<!-- Animated paper texture background -->
+<canvas id="paperTexture" class="paper-texture"></canvas>
+
+<!-- Floating depth icons -->
+<div class="floating-icons-layer" id="floatingIcons"></div>
+
+<div class="tools-layout">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <!-- ========== SIDEBAR TEMPLATE ========== -->
+<!-- This exact sidebar must be used in ALL tool pages -->
+<!-- The page for the current tool should have class="active" on its sidebar-link -->
+
+<!-- ========== SIDEBAR TEMPLATE ========== -->
+<!-- This exact sidebar must be used in ALL tool pages -->
+<!-- The page for the current tool should have class="active" on its sidebar-link -->
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" class="sidebar-logo-link">
+        <img src="icon-logo.png" alt="Jordan's Archives" class="sidebar-logo-icon">
+      </a>
+    </div>
+    <nav class="sidebar-nav" aria-label="Tool categories">
+      <a href="index.html" class="sidebar-link sidebar-home" data-tooltip="Home">
+        <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10L10 3L17 10"/><path d="M5 8.5V16.5H8.5V12H11.5V16.5H15V8.5"/></svg>
+        <span class="sidebar-link-text">Home</span>
+      </a>
+
+      <!-- MOST USED -->
+      <div class="sidebar-section sidebar-section-red">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text sidebar-title-red">Most Used</span></div>
+        <a href="tool-partnerships-calculator.html" class="sidebar-link" data-tooltip="Partnerships Calculator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L10 18"/><path d="M13.5 5.5C13.5 4 12 3 10 3C8 3 6.5 4 6.5 5.5C6.5 7 8 8 10 8C12 8 13.5 9 13.5 10.5C13.5 12 12 13 10 13C8 13 6.5 12 6.5 10.5"/></svg>
+          <span class="sidebar-link-text">Partnerships Calculator</span>
+        </a>
+        <a href="tool-palette-generator.html" class="sidebar-link" data-tooltip="Palette Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+          <span class="sidebar-link-text">Palette Generator</span>
+        </a>
+        <a href="tool-qr-generator.html" class="sidebar-link" data-tooltip="QR Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="14" y="14" width="4" height="4"/><path d="M12 12L12 14"/><path d="M14 12L18 12"/></svg>
+          <span class="sidebar-link-text">QR Generator</span>
+        </a>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Content</span></div>
+        <a href="tool-cvg.html" class="sidebar-link" data-tooltip="Content Value Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2C6.5 2 4 5 4 8C4 10.5 5.5 12.5 7.5 13.5L7.5 15.5C7.5 16.5 8.5 17.5 10 17.5C11.5 17.5 12.5 16.5 12.5 15.5L12.5 13.5C14.5 12.5 16 10.5 16 8C16 5 13.5 2 10 2Z"/><path d="M8 15L12 15"/><path d="M8.5 17L11.5 17"/></svg>
+          <span class="sidebar-link-text">Content Value Generator</span>
+        </a>
+        <a href="tool-content-plan.html" class="sidebar-link" data-tooltip="Content Plan Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="15" height="13.5"/><path d="M2.5 8.5L17.5 8.5"/><path d="M6.5 2L6.5 5.5"/><path d="M13.5 2L13.5 5.5"/><circle cx="7" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="10" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="13" cy="12" r="0.8" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Content Plan Generator</span>
+        </a>
+      </div>
+
+      <!-- BRANDING & DESIGN -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Branding &amp; Design</span></div>
+        <a href="tool-typeface-picker.html" class="sidebar-link" data-tooltip="Brand Typeface Picker">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5L10 5L16 5"/><path d="M10 5L10 17"/><path d="M7 17L13 17"/><path d="M2 4C2 3.5 3 2.5 4 2.5L16 2.5C17 2.5 18 3.5 18 4"/></svg>
+          <span class="sidebar-link-text">Brand Typeface Picker</span>
+        </a>
+        <a href="tool-visual-identity-formula.html" class="sidebar-link" data-tooltip="Visual Identity Formula">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14"/><path d="M7 3L7 17"/><path d="M3 8L17 8"/><circle cx="12" cy="12.5" r="2.5"/></svg>
+          <span class="sidebar-link-text">Visual Identity Formula</span>
+        </a>
+        <a href="tool-palette-generator.html" class="sidebar-link" data-tooltip="Palette Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+          <span class="sidebar-link-text">Palette Generator</span>
+        </a>
+        <a href="tool-palette-collection.html" class="sidebar-link" data-tooltip="Palette Collection">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="4" rx="1"/><rect x="2" y="8" width="16" height="4" rx="1"/><rect x="2" y="13" width="16" height="4" rx="1"/></svg>
+          <span class="sidebar-link-text">Palette Collection</span>
+        </a>
+        <a href="tool-contrast-checker.html" class="sidebar-link" data-tooltip="Contrast Checker">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><path d="M10 2L10 18" stroke="none"/><path d="M10 2A8 8 0 0 1 10 18Z" fill="currentColor"/></svg>
+          <span class="sidebar-link-text">Contrast Checker</span>
+        </a>
+        <a href="tool-color-converter.html" class="sidebar-link" data-tooltip="Color Converter">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14L6.5 3L11 14"/><path d="M3.5 11L9.5 11"/><path d="M14 8L14 16"/><path d="M11 12.5L17 12.5"/></svg>
+          <span class="sidebar-link-text">Color Converter</span>
+        </a>
+        <a href="tool-glyph-browser.html" class="sidebar-link" data-tooltip="Glyph Browser">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4L8 16"/><path d="M12 4C12 4 16 4 16 8C16 12 12 12 12 12"/><circle cx="14" cy="15" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Glyph Browser</span>
+        </a>
+      </div>
+
+      <!-- IMAGE & ASSETS -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Image &amp; Assets</span></div>
+        <a href="tool-background-remover.html" class="sidebar-link" data-tooltip="Background Remover">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="16" height="16" rx="2"/><path d="M2 14L7 9L11 13"/><path d="M12 11L15 8L18 11"/><circle cx="13.5" cy="6" r="1.5"/></svg>
+          <span class="sidebar-link-text">Background Remover</span>
+        </a>
+        <a href="tool-svg-optimizer.html" class="sidebar-link" data-tooltip="SVG Optimizer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3L17 3L17 17L3 17Z"/><path d="M7 7L10 13L13 7"/></svg>
+          <span class="sidebar-link-text">SVG Optimizer</span>
+        </a>
+        <a href="tool-image-converter.html" class="sidebar-link" data-tooltip="Image Converter">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="10" height="12" rx="1"/><path d="M14 7L18 7L18 17L8 17"/><path d="M5 10L8 7.5L11 10"/></svg>
+          <span class="sidebar-link-text">Image Converter</span>
+        </a>
+        <a href="tool-image-tracer.html" class="sidebar-link" data-tooltip="Image Tracer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L8 4L13 13L17 6"/><circle cx="3" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Image Tracer</span>
+        </a>
+        <a href="tool-qr-generator.html" class="sidebar-link" data-tooltip="QR Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="14" y="14" width="4" height="4"/><path d="M12 12L12 14"/><path d="M14 12L18 12"/></svg>
+          <span class="sidebar-link-text">QR Generator</span>
+        </a>
+      </div>
+
+      <!-- SOCIAL MEDIA -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Social Media</span></div>
+        <a href="tool-bio-optimizer.html" class="sidebar-link" data-tooltip="Bio Optimizer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5C4 3.5 5 2.5 6 2.5L14 2.5C15 2.5 16 3.5 16 4.5L16 13C16 14 15 15 14 15L10 15L6.5 18L7 15L6 15C5 15 4 14 4 13Z"/><path d="M7 7L13 7"/><path d="M7 10L11 10"/></svg>
+          <span class="sidebar-link-text">Bio Optimizer</span>
+        </a>
+        <a href="tool-partnerships-calculator.html" class="sidebar-link" data-tooltip="Partnerships Calculator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L10 18"/><path d="M13.5 5.5C13.5 4 12 3 10 3C8 3 6.5 4 6.5 5.5C6.5 7 8 8 10 8C12 8 13.5 9 13.5 10.5C13.5 12 12 13 10 13C8 13 6.5 12 6.5 10.5"/></svg>
+          <span class="sidebar-link-text">Partnerships Calculator</span>
+        </a>
+      </div>
+
+      <!-- PRINT & PRODUCTION -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Print &amp; Production</span></div>
+        <a href="tool-pdf-preflight.html" class="sidebar-link active" data-tooltip="PDF Preflight">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2L12 2L16 6L16 18L4 18Z"/><path d="M12 2L12 6L16 6"/><path d="M7 11L9 13L13 9"/></svg>
+          <span class="sidebar-link-text">PDF Preflight</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <p class="sidebar-footer-msg">No signup. No tracking.<br>Just tools.</p>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <button class="topbar-toggle topbar-hamburger" id="sidebarToggle" aria-label="Open sidebar menu">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M3 5H17"/><path d="M3 10H17"/><path d="M3 15H17"/>
+        </svg>
+      </button>
+      <button class="topbar-toggle topbar-collapse-btn" id="sidebarCollapseToggle" aria-label="Toggle sidebar collapse">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="16" height="14"/><path d="M8 3L8 17"/>
+        </svg>
+      </button>
+      <div class="breadcrumb">
+        <a href="index.html">jordan's archives</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="tools.html">free tools</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>PDF Preflight</span>
+      </div>
+    </div>
+
+    <!-- Tool Page Header -->
+    <div class="tool-page-header">
+      <div class="tool-page-header-inner">
+        <div class="tool-page-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 2L12 2L16 6L16 18L4 18Z"/>
+            <path d="M12 2L12 6L16 6"/>
+            <path d="M7 11L9 13L13 9"/>
+          </svg>
+        </div>
+        <div class="tool-page-info">
+          <span class="tool-page-badge">Print &amp; Production</span>
+          <h1 class="tool-page-title">PDF Preflight</h1>
+          <p class="tool-page-desc">Analyse a PDF for print readiness. Check fonts, colours, images, transparency, bleed and more.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Embedded Tool -->
+    <div class="tool-embed" id="toolRoot">
+      <!-- Drop zone (initial state) -->
+      <div class="tool-section" id="dropSection">
+        <div class="pf-drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept=".pdf,application/pdf" style="display:none;">
+          <svg class="pf-drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+          <p class="pf-drop-title">Drop a PDF here</p>
+          <p class="pf-drop-sub">or click to select a file</p>
+        </div>
+      </div>
+
+      <!-- File info bar (shown after load) -->
+      <div class="tool-section" id="fileSection" style="display:none;">
+        <div class="pf-file-bar">
+          <svg class="pf-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+          <div class="pf-file-info">
+            <p class="pf-file-name" id="fileName"></p>
+            <p class="pf-file-size" id="fileSize"></p>
+          </div>
+          <button class="pf-file-remove" id="clearBtn" title="Remove file">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4L12 12"/><path d="M12 4L4 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <p class="pf-error" id="errorMsg" style="display:none;"></p>
+
+      <!-- Spinner -->
+      <div class="pf-spinner" id="spinner" style="display:none;">
+        <svg class="pf-spin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 010 20 10 10 0 010-20" stroke-dasharray="31.4 31.4" stroke-dashoffset="0"/></svg>
+        <span>Analysing PDF...</span>
+      </div>
+
+      <!-- Report -->
+      <div class="pf-report" id="reportSection" style="display:none;"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="tools-footer">
+      <span>jordan's archives</span>
+      <div>
+        <a href="index.html">home</a>
+        <span style="margin: 0 0.5rem; opacity: 0.3;">&middot;</span>
+        <a href="about.html">about</a>
+        <span style="margin: 0 0.5rem; opacity: 0.3;">&middot;</span>
+        <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+      </div>
+    </footer>
+
+  </main>
+
+</div>
+
+<!-- PDF Preflight Tool Script (module for pdfjs-dist ES import) -->
+<script type="module">
+import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs';
+
+var PDFLib = window.PDFLib;
+var PDFDocument = PDFLib.PDFDocument;
+var PDFName = PDFLib.PDFName;
+var PDFDict = PDFLib.PDFDict;
+var PDFArray = PDFLib.PDFArray;
+var PDFNumber = PDFLib.PDFNumber;
+var PDFRef = PDFLib.PDFRef;
+var PDFHexString = PDFLib.PDFHexString;
+var PDFString = PDFLib.PDFString;
+var PDFRawStream = PDFLib.PDFRawStream;
+var PDFStream = PDFLib.PDFStream;
+var decodePDFRawStream = PDFLib.decodePDFRawStream;
+
+// ---------------------------------------------------------------------------
+// DOM refs
+// ---------------------------------------------------------------------------
+var dropSection = document.getElementById('dropSection');
+var dropZone = document.getElementById('dropZone');
+var fileInput = document.getElementById('fileInput');
+var fileSection = document.getElementById('fileSection');
+var fileNameEl = document.getElementById('fileName');
+var fileSizeEl = document.getElementById('fileSize');
+var clearBtn = document.getElementById('clearBtn');
+var errorMsg = document.getElementById('errorMsg');
+var spinner = document.getElementById('spinner');
+var reportSection = document.getElementById('reportSection');
+
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+var currentFile = null;    // { name, size, buffer }
+var report = null;
+var pdfDoc = null;         // pdf.js document proxy
+var currentPage = 1;
+var canvasEl = null;
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function arrayToBox(arr) {
+  var nums = [];
+  for (var i = 0; i < arr.size(); i++) {
+    var val = arr.get(i);
+    if (val instanceof PDFNumber) nums.push(val.asNumber());
+    else if (val instanceof PDFRef) nums.push(0);
+  }
+  if (nums.length < 4) return { x: 0, y: 0, width: 612, height: 792 };
+  return {
+    x: Math.min(nums[0], nums[2]),
+    y: Math.min(nums[1], nums[3]),
+    width: Math.abs(nums[2] - nums[0]),
+    height: Math.abs(nums[3] - nums[1])
+  };
+}
+
+function ptsToMm(pts) { return pts * 0.352778; }
+
+var STANDARD_14_FONTS = new Set([
+  "Courier","Courier-Bold","Courier-BoldOblique","Courier-Oblique",
+  "Helvetica","Helvetica-Bold","Helvetica-BoldOblique","Helvetica-Oblique",
+  "Symbol","Times-Bold","Times-BoldItalic","Times-Italic","Times-Roman","ZapfDingbats"
+]);
+
+var CATEGORY_LABELS = {
+  document: "Document", geometry: "Geometry", fonts: "Fonts",
+  colour: "Colour", images: "Images", transparency: "Transparency"
+};
+
+function extractFontData(descriptor, context) {
+  var entries = [["FontFile", ".pfb"], ["FontFile2", ".ttf"], ["FontFile3", ".otf"]];
+  for (var i = 0; i < entries.length; i++) {
+    var key = entries[i][0], ext = entries[i][1];
+    var streamObj = descriptor.get(PDFName.of(key));
+    if (streamObj instanceof PDFRef) streamObj = context.lookup(streamObj);
+    if (streamObj instanceof PDFRawStream) {
+      try {
+        var decoded = decodePDFRawStream(streamObj);
+        return { data: decoded.decode(), extension: ext };
+      } catch (_) {
+        try { return { data: streamObj.getContents(), extension: ext }; } catch (_2) { return null; }
+      }
+    }
+    if (streamObj instanceof PDFStream) {
+      try { return { data: streamObj.getContents(), extension: ext }; } catch (_) { return null; }
+    }
+  }
+  return null;
+}
+
+// SVG icon helpers
+function svgIcon(type) {
+  if (type === 'error') return '<svg class="pf-issue-icon error" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 5.5L10.5 10.5"/><path d="M10.5 5.5L5.5 10.5"/></svg>';
+  if (type === 'warning') return '<svg class="pf-issue-icon warning" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L14.5 13H1.5Z"/><path d="M8 6.5V9.5"/><circle cx="8" cy="11.5" r="0.5" fill="currentColor" stroke="none"/></svg>';
+  return '<svg class="pf-issue-icon info" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 7V11"/><circle cx="8" cy="5" r="0.5" fill="currentColor" stroke="none"/></svg>';
+}
+
+function svgIconSmall(type) {
+  if (type === 'error') return '<svg class="pf-page-issue-icon" style="color:#ef4444" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 5.5L10.5 10.5"/><path d="M10.5 5.5L5.5 10.5"/></svg>';
+  if (type === 'warning') return '<svg class="pf-page-issue-icon" style="color:#f59e0b" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L14.5 13H1.5Z"/><path d="M8 6.5V9.5"/><circle cx="8" cy="11.5" r="0.5" fill="currentColor" stroke="none"/></svg>';
+  return '<svg class="pf-page-issue-icon" style="color:#3b82f6" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 7V11"/><circle cx="8" cy="5" r="0.5" fill="currentColor" stroke="none"/></svg>';
+}
+
+// ---------------------------------------------------------------------------
+// analyseWithPdfLib
+// ---------------------------------------------------------------------------
+async function analyseWithPdfLib(buffer, fileName, fileSize) {
+  var issues = [];
+  var pages = [];
+  var fontsMap = new Map();
+
+  var doc;
+  try {
+    doc = await PDFDocument.load(buffer, { ignoreEncryption: true });
+  } catch (_) { throw new Error("PARSE_ERROR"); }
+
+  var context = doc.context;
+  var headerBytes = new Uint8Array(buffer.slice(0, 20));
+  var headerStr = String.fromCharCode.apply(null, headerBytes);
+  var versionMatch = headerStr.match(/%PDF-(\d+\.\d+)/);
+  var pdfVersion = versionMatch ? versionMatch[1] : "unknown";
+
+  var trailer = context.trailerInfo;
+  var encrypted = !!trailer.Encrypt;
+  if (encrypted) {
+    issues.push({ severity:"error", category:"document", message:"PDF is encrypted or has security restrictions", details:"Encrypted PDFs cannot be reliably processed by most print workflows. Remove encryption before sending to print." });
+  }
+
+  var pdfPages = doc.getPages();
+  var pageCount = pdfPages.length;
+  if (pageCount === 0) {
+    issues.push({ severity:"error", category:"document", message:"PDF contains no pages" });
+  }
+
+  var firstWidth = 0, firstHeight = 0;
+
+  for (var i = 0; i < pdfPages.length; i++) {
+    var page = pdfPages[i];
+    var pageNum = i + 1;
+
+    var mediaBoxRaw = page.node.get(PDFName.of("MediaBox"));
+    var mediaBox;
+    if (mediaBoxRaw instanceof PDFArray) { mediaBox = arrayToBox(mediaBoxRaw); }
+    else { mediaBox = { x:0, y:0, width: page.getWidth(), height: page.getHeight() }; }
+
+    var trimBox, bleedBox, cropBox;
+    var trimBoxRaw = page.node.get(PDFName.of("TrimBox"));
+    if (trimBoxRaw instanceof PDFArray) trimBox = arrayToBox(trimBoxRaw);
+    var bleedBoxRaw = page.node.get(PDFName.of("BleedBox"));
+    if (bleedBoxRaw instanceof PDFArray) bleedBox = arrayToBox(bleedBoxRaw);
+    var cropBoxRaw = page.node.get(PDFName.of("CropBox"));
+    if (cropBoxRaw instanceof PDFArray) cropBox = arrayToBox(cropBoxRaw);
+
+    pages.push({ number: pageNum, width: mediaBox.width, height: mediaBox.height, mediaBox: mediaBox, trimBox: trimBox, bleedBox: bleedBox, cropBox: cropBox });
+
+    // Bleed checks
+    if (!bleedBox) {
+      issues.push({ severity:"warning", category:"geometry", message:"No BleedBox defined", page:pageNum, details:"Without a bleed area, content may be cut off at the page edge. Most printers require at least 3mm bleed." });
+    } else if (trimBox) {
+      var bleedLeft = trimBox.x - bleedBox.x;
+      var bleedBottom = trimBox.y - bleedBox.y;
+      var bleedRight = bleedBox.x + bleedBox.width - (trimBox.x + trimBox.width);
+      var bleedTop = bleedBox.y + bleedBox.height - (trimBox.y + trimBox.height);
+      var minBleed = Math.min(bleedLeft, bleedBottom, bleedRight, bleedTop);
+      if (minBleed < 8.5) {
+        issues.push({ severity:"warning", category:"geometry", message:"Bleed margin is only " + ptsToMm(minBleed).toFixed(1) + "mm (minimum 3mm recommended)", page:pageNum, details:"Smallest bleed margin found: " + minBleed.toFixed(1) + "pt (" + ptsToMm(minBleed).toFixed(1) + "mm). Printers typically require at least 3mm." });
+      }
+    }
+
+    if (!trimBox) {
+      issues.push({ severity:"info", category:"geometry", message:"No TrimBox defined", page:pageNum, details:"The TrimBox defines the finished page size after cutting. Without it, the MediaBox is used as the trim size." });
+    }
+
+    // Page size consistency
+    if (i === 0) { firstWidth = mediaBox.width; firstHeight = mediaBox.height; }
+    else if (Math.abs(mediaBox.width - firstWidth) > 1 || Math.abs(mediaBox.height - firstHeight) > 1) {
+      issues.push({ severity:"warning", category:"geometry", message:"Page size differs from page 1", page:pageNum, details:"Page " + pageNum + ": " + mediaBox.width.toFixed(0) + " x " + mediaBox.height.toFixed(0) + "pt vs page 1: " + firstWidth.toFixed(0) + " x " + firstHeight.toFixed(0) + "pt" });
+    }
+
+    // Font extraction
+    var resourcesRaw = page.node.get(PDFName.of("Resources"));
+    var resources;
+    if (resourcesRaw instanceof PDFDict) resources = resourcesRaw;
+    else if (resourcesRaw instanceof PDFRef) { var resolved = context.lookup(resourcesRaw); if (resolved instanceof PDFDict) resources = resolved; }
+
+    if (resources) {
+      var fontsRaw = resources.get(PDFName.of("Font"));
+      var fontsDict;
+      if (fontsRaw instanceof PDFDict) fontsDict = fontsRaw;
+      else if (fontsRaw instanceof PDFRef) { var res2 = context.lookup(fontsRaw); if (res2 instanceof PDFDict) fontsDict = res2; }
+
+      if (fontsDict) {
+        var fontEntries = fontsDict.entries();
+        for (var fe = 0; fe < fontEntries.length; fe++) {
+          var fontValue = fontEntries[fe][1];
+          var fontDict;
+          if (fontValue instanceof PDFDict) fontDict = fontValue;
+          else if (fontValue instanceof PDFRef) { var res3 = context.lookup(fontValue); if (res3 instanceof PDFDict) fontDict = res3; }
+          if (!fontDict) continue;
+
+          var baseFontRaw = fontDict.get(PDFName.of("BaseFont"));
+          var fontName = "Unknown";
+          if (baseFontRaw instanceof PDFName) fontName = baseFontRaw.decodeText();
+          else if (baseFontRaw instanceof PDFHexString || baseFontRaw instanceof PDFString) fontName = baseFontRaw.decodeText();
+          fontName = fontName.replace(/^[A-Z]{6}\+/, "");
+
+          var subtypeRaw = fontDict.get(PDFName.of("Subtype"));
+          var fontType;
+          if (subtypeRaw instanceof PDFName) fontType = subtypeRaw.decodeText();
+
+          var embedded = false;
+          var fontData = null;
+          var descriptorRaw = fontDict.get(PDFName.of("FontDescriptor"));
+          var descriptor;
+          if (descriptorRaw instanceof PDFDict) descriptor = descriptorRaw;
+          else if (descriptorRaw instanceof PDFRef) { var res4 = context.lookup(descriptorRaw); if (res4 instanceof PDFDict) descriptor = res4; }
+
+          if (descriptor) {
+            var ff1 = descriptor.get(PDFName.of("FontFile"));
+            var ff2 = descriptor.get(PDFName.of("FontFile2"));
+            var ff3 = descriptor.get(PDFName.of("FontFile3"));
+            embedded = !!(ff1 || ff2 || ff3);
+            if (embedded) fontData = extractFontData(descriptor, context);
+          }
+
+          if (!embedded && STANDARD_14_FONTS.has(fontName)) embedded = true;
+
+          // Composite Type0
+          if (!embedded && fontType === "Type0") {
+            var descendants = fontDict.get(PDFName.of("DescendantFonts"));
+            if (descendants instanceof PDFArray) {
+              for (var d = 0; d < descendants.size(); d++) {
+                var cidFont;
+                var desc = descendants.get(d);
+                if (desc instanceof PDFDict) cidFont = desc;
+                else if (desc instanceof PDFRef) { var res5 = context.lookup(desc); if (res5 instanceof PDFDict) cidFont = res5; }
+                if (cidFont) {
+                  var cidDesc = cidFont.get(PDFName.of("FontDescriptor"));
+                  var cidDescriptor;
+                  if (cidDesc instanceof PDFDict) cidDescriptor = cidDesc;
+                  else if (cidDesc instanceof PDFRef) { var res6 = context.lookup(cidDesc); if (res6 instanceof PDFDict) cidDescriptor = res6; }
+                  if (cidDescriptor) {
+                    var cff1 = cidDescriptor.get(PDFName.of("FontFile"));
+                    var cff2 = cidDescriptor.get(PDFName.of("FontFile2"));
+                    var cff3 = cidDescriptor.get(PDFName.of("FontFile3"));
+                    if (cff1 || cff2 || cff3) {
+                      embedded = true;
+                      if (!fontData) fontData = extractFontData(cidDescriptor, context);
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          var key = fontName + ":" + (fontType || "");
+          if (!fontsMap.has(key)) {
+            fontsMap.set(key, { name: fontName, embedded: embedded, type: fontType, data: fontData ? fontData.data : undefined, extension: fontData ? fontData.extension : undefined });
+          }
+        }
+      }
+
+      // Transparency detection
+      var groupRaw = page.node.get(PDFName.of("Group"));
+      var groupDict;
+      if (groupRaw instanceof PDFDict) groupDict = groupRaw;
+      else if (groupRaw instanceof PDFRef) { var res7 = context.lookup(groupRaw); if (res7 instanceof PDFDict) groupDict = res7; }
+
+      if (groupDict) {
+        var sRaw = groupDict.get(PDFName.of("S"));
+        if (sRaw instanceof PDFName && sRaw.decodeText() === "Transparency") {
+          if (parseFloat(pdfVersion) < 1.4) {
+            issues.push({ severity:"error", category:"transparency", message:"Transparency used in a PDF older than 1.4", page:pageNum, details:"PDF versions before 1.4 do not support transparency. This may cause rendering issues." });
+          } else {
+            issues.push({ severity:"info", category:"transparency", message:"Page uses transparency group", page:pageNum, details:"This page has a transparency group. Ensure your printer/RIP supports transparency or flatten before printing." });
+          }
+        }
+      }
+
+      // ExtGState transparency
+      var extGStateRaw = resources.get(PDFName.of("ExtGState"));
+      var extGStateDict;
+      if (extGStateRaw instanceof PDFDict) extGStateDict = extGStateRaw;
+      else if (extGStateRaw instanceof PDFRef) { var res8 = context.lookup(extGStateRaw); if (res8 instanceof PDFDict) extGStateDict = res8; }
+
+      if (extGStateDict) {
+        var gsEntries = extGStateDict.entries();
+        var hasTransparency = false;
+        for (var ge = 0; ge < gsEntries.length; ge++) {
+          var gsValue = gsEntries[ge][1];
+          var gsDict;
+          if (gsValue instanceof PDFDict) gsDict = gsValue;
+          else if (gsValue instanceof PDFRef) { var res9 = context.lookup(gsValue); if (res9 instanceof PDFDict) gsDict = res9; }
+          if (!gsDict) continue;
+
+          var caRaw = gsDict.get(PDFName.of("ca"));
+          if (caRaw instanceof PDFNumber && caRaw.asNumber() < 1) hasTransparency = true;
+          var caStroke = gsDict.get(PDFName.of("CA"));
+          if (caStroke instanceof PDFNumber && caStroke.asNumber() < 1) hasTransparency = true;
+          var smaskRaw = gsDict.get(PDFName.of("SMask"));
+          if (smaskRaw && !(smaskRaw instanceof PDFName && smaskRaw.decodeText() === "None")) hasTransparency = true;
+        }
+
+        if (hasTransparency) {
+          if (parseFloat(pdfVersion) < 1.4) {
+            issues.push({ severity:"error", category:"transparency", message:"Transparency effects used in a PDF older than 1.4", page:pageNum, details:"Opacity or soft mask settings require PDF 1.4+. This may not render correctly." });
+          } else {
+            issues.push({ severity:"info", category:"transparency", message:"Page uses transparency effects (opacity or soft mask)", page:pageNum, details:"Elements with reduced opacity or soft masks were detected. Consider flattening transparency for older RIPs." });
+          }
+        }
+      }
+    }
+  }
+
+  // Font issues
+  var fonts = Array.from(fontsMap.values());
+  for (var fi = 0; fi < fonts.length; fi++) {
+    if (!fonts[fi].embedded) {
+      issues.push({ severity:"error", category:"fonts", message:'Font "' + fonts[fi].name + '" is not embedded', details:"Non-embedded fonts may render incorrectly or cause missing text at the printer. Embed all fonts before sending to print." });
+    }
+    if (fonts[fi].type === "Type3") {
+      issues.push({ severity:"warning", category:"fonts", message:'Font "' + fonts[fi].name + '" is a Type 3 font', details:"Type 3 fonts are bitmap-based and may not scale well. Consider replacing with an outline font." });
+    }
+  }
+
+  if (parseFloat(pdfVersion) < 1.4) {
+    issues.push({ severity:"warning", category:"document", message:"PDF version " + pdfVersion + " is below 1.4", details:"PDF 1.4+ is recommended for modern print workflows. Older versions lack support for transparency and other features." });
+  }
+
+  // Orientation info
+  for (var oi = 0; oi < pages.length; oi++) {
+    var orientation = pages[oi].width > pages[oi].height ? "Landscape" : "Portrait";
+    issues.push({ severity:"info", category:"geometry", message: orientation + " orientation", page: pages[oi].number, details: pages[oi].width.toFixed(0) + " x " + pages[oi].height.toFixed(0) + "pt (" + ptsToMm(pages[oi].width).toFixed(0) + " x " + ptsToMm(pages[oi].height).toFixed(0) + "mm)" });
+  }
+
+  if (pages.length > 1) {
+    var orientations = pages.map(function(p) { return p.width > p.height ? "landscape" : "portrait"; });
+    if (new Set(orientations).size > 1) {
+      issues.push({ severity:"warning", category:"geometry", message:"Mixed page orientations detected", details:"Some pages are portrait and others are landscape. This may cause issues with imposition and binding." });
+    }
+  }
+
+  return { fileName: fileName, fileSize: fileSize, pdfVersion: pdfVersion, pageCount: pageCount, encrypted: encrypted, pages: pages, fonts: fonts, issues: issues };
+}
+
+// ---------------------------------------------------------------------------
+// analyseWithPdfJs
+// ---------------------------------------------------------------------------
+async function analyseWithPdfJs(buffer) {
+  var issues = [];
+  var loadingTask = pdfjsLib.getDocument({ data: buffer.slice(0) });
+  var pdfDocProxy = await loadingTask.promise;
+  var OPS = pdfjsLib.OPS;
+
+  for (var i = 1; i <= pdfDocProxy.numPages; i++) {
+    var page = await pdfDocProxy.getPage(i);
+    var opList = await page.getOperatorList();
+
+    var imageCount = 0;
+    var colourSpaces = new Set();
+
+    for (var j = 0; j < opList.fnArray.length; j++) {
+      var fn = opList.fnArray[j];
+      if (fn === OPS.paintImageXObject || fn === OPS.paintXObject || fn === OPS.paintImageXObjectRepeat) imageCount++;
+      if (fn === OPS.setFillColorSpace || fn === OPS.setStrokeColorSpace) {
+        var args = opList.argsArray[j];
+        if (args && args[0]) colourSpaces.add(typeof args[0] === "string" ? args[0] : String(args[0]));
+      }
+    }
+
+    var csArray = Array.from(colourSpaces);
+    var hasRGB = csArray.some(function(cs) { return cs.includes("RGB") || cs.includes("DeviceRGB") || cs === "rgb"; });
+    var hasCMYK = csArray.some(function(cs) { return cs.includes("CMYK") || cs.includes("DeviceCMYK") || cs === "cmyk"; });
+    var hasGray = csArray.some(function(cs) { return cs.includes("Gray") || cs.includes("DeviceGray") || cs === "gray"; });
+    var hasSpot = csArray.some(function(cs) { return cs.includes("Separation") || cs.includes("DeviceN") || cs === "spot"; });
+
+    if (hasRGB) issues.push({ severity:"warning", category:"colour", message:"RGB colour space detected", page:i, details:"RGB colours may shift when converted to CMYK for print. Consider converting to CMYK before sending to a commercial printer." });
+    if (hasGray) issues.push({ severity:"info", category:"colour", message:"Grayscale colour space detected", page:i, details:"Grayscale content found. This is generally fine for print but ensure it meets your colour requirements." });
+    if (hasSpot) issues.push({ severity:"info", category:"colour", message:"Spot colour or DeviceN colour space detected", page:i, details:"Spot colours were found. Verify your printer supports the spot colour inks used, or convert to CMYK process colours." });
+
+    var activeSpaces = [hasRGB && "RGB", hasCMYK && "CMYK", hasGray && "Gray", hasSpot && "Spot"].filter(Boolean);
+    if (activeSpaces.length > 1) {
+      issues.push({ severity:"warning", category:"colour", message:"Mixed colour spaces (" + activeSpaces.join(", ") + ")", page:i, details:"Multiple colour spaces on this page can cause inconsistent colour output. Consider converting to a single colour space." });
+    }
+
+    if (imageCount > 0) {
+      issues.push({ severity:"info", category:"images", message: imageCount + " image" + (imageCount > 1 ? "s" : "") + " found", page:i, details:"Ensure images are at least 300 DPI for print. Low-resolution images may appear pixelated." });
+    }
+
+    // DPI estimation
+    var pageViewport = page.getViewport({ scale: 1 });
+    var pageWidthInches = pageViewport.width / 72;
+    var pageHeightInches = pageViewport.height / 72;
+    var seenImages = new Set();
+
+    for (var k = 0; k < opList.fnArray.length; k++) {
+      var fn2 = opList.fnArray[k];
+      if (fn2 === OPS.paintImageXObject || fn2 === OPS.paintXObject) {
+        var args2 = opList.argsArray[k];
+        if (args2 && args2[0]) {
+          try {
+            var imgName = typeof args2[0] === "string" ? args2[0] : String(args2[0]);
+            if (seenImages.has(imgName)) continue;
+            seenImages.add(imgName);
+
+            var imgObj = await new Promise(function(resolve) {
+              var resolved = false;
+              var timer = setTimeout(function() { if (!resolved) { resolved = true; resolve(null); } }, 500);
+              try {
+                page.objs.get(imgName, function(obj) {
+                  if (resolved) return;
+                  resolved = true;
+                  clearTimeout(timer);
+                  if (obj && typeof obj === "object" && "width" in obj && "height" in obj) resolve(obj);
+                  else resolve(null);
+                });
+              } catch (_) { resolved = true; clearTimeout(timer); resolve(null); }
+            });
+
+            if (imgObj && imgObj.width > 0 && imgObj.height > 0) {
+              var dpiX = imgObj.width / pageWidthInches;
+              var dpiY = imgObj.height / pageHeightInches;
+              var effectiveDpi = Math.min(dpiX, dpiY);
+              if (effectiveDpi < 72) {
+                issues.push({ severity:"error", category:"images", message:"Very low resolution image (~" + Math.round(effectiveDpi) + " DPI at full page)", page:i, details:'Image "' + imgName + '" is ' + imgObj.width + 'x' + imgObj.height + 'px (~' + Math.round(effectiveDpi) + ' DPI if filling the page). This will appear pixelated in print.' });
+              } else if (effectiveDpi < 150) {
+                issues.push({ severity:"warning", category:"images", message:"Low resolution image (~" + Math.round(effectiveDpi) + " DPI at full page)", page:i, details:'Image "' + imgName + '" is ' + imgObj.width + 'x' + imgObj.height + 'px (~' + Math.round(effectiveDpi) + ' DPI if filling the page). For best quality, use 300 DPI or higher.' });
+              }
+            }
+          } catch (_) {}
+        }
+      }
+    }
+
+    page.cleanup();
+  }
+
+  return { pdfDoc: pdfDocProxy, issues: issues };
+}
+
+// ---------------------------------------------------------------------------
+// File handling
+// ---------------------------------------------------------------------------
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.style.display = '';
+}
+function hideError() { errorMsg.style.display = 'none'; }
+
+function validateAndLoadFile(file) {
+  hideError();
+  if (file.type && file.type !== "application/pdf") { showError("Please upload a PDF file."); return; }
+  if (!file.name.toLowerCase().endsWith(".pdf")) { showError("Please upload a file with a .pdf extension."); return; }
+
+  var reader = new FileReader();
+  reader.onload = function() {
+    var buffer = reader.result;
+    var header = new Uint8Array(buffer.slice(0, 5));
+    var magic = String.fromCharCode.apply(null, header);
+    if (!magic.startsWith("%PDF")) { showError("The file does not appear to be a valid PDF."); return; }
+    currentFile = { name: file.name, size: file.size, buffer: buffer };
+    onFileLoaded();
+  };
+  reader.onerror = function() { showError("Failed to read the file. Please try again."); };
+  reader.readAsArrayBuffer(file);
+}
+
+function onFileLoaded() {
+  dropSection.style.display = 'none';
+  fileSection.style.display = '';
+  fileNameEl.textContent = currentFile.name;
+  fileSizeEl.textContent = formatSize(currentFile.size);
+  runAnalysis();
+}
+
+function handleClear() {
+  if (pdfDoc) { pdfDoc.destroy(); pdfDoc = null; }
+  currentFile = null;
+  report = null;
+  currentPage = 1;
+  canvasEl = null;
+  hideError();
+  spinner.style.display = 'none';
+  reportSection.style.display = 'none';
+  reportSection.innerHTML = '';
+  fileSection.style.display = 'none';
+  dropSection.style.display = '';
+  fileInput.value = '';
+}
+
+// Drop zone events
+dropZone.addEventListener('click', function() { fileInput.click(); });
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('drag-active'); });
+dropZone.addEventListener('dragleave', function(e) { e.preventDefault(); dropZone.classList.remove('drag-active'); });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dropZone.classList.remove('drag-active');
+  var dropped = e.dataTransfer.files[0];
+  if (dropped) validateAndLoadFile(dropped);
+});
+fileInput.addEventListener('change', function() {
+  var selected = fileInput.files[0];
+  if (selected) validateAndLoadFile(selected);
+  fileInput.value = '';
+});
+clearBtn.addEventListener('click', handleClear);
+
+// ---------------------------------------------------------------------------
+// Analysis
+// ---------------------------------------------------------------------------
+async function runAnalysis() {
+  spinner.style.display = '';
+  reportSection.style.display = 'none';
+  reportSection.innerHTML = '';
+  hideError();
+
+  try {
+    var structReport = await analyseWithPdfLib(currentFile.buffer, currentFile.name, currentFile.size);
+
+    try {
+      var result = await analyseWithPdfJs(currentFile.buffer);
+      structReport.issues.push.apply(structReport.issues, result.issues);
+      pdfDoc = result.pdfDoc;
+    } catch (pdfJsErr) {
+      console.warn("pdf.js analysis failed:", pdfJsErr);
+      structReport.issues.push({ severity:"warning", category:"document", message:"Could not render page previews", details:"The page preview and image analysis could not be loaded. Structural analysis is still available." });
+    }
+
+    report = structReport;
+    currentPage = 1;
+    renderReport();
+  } catch (e) {
+    var msg = e instanceof Error ? e.message : "";
+    if (msg === "PARSE_ERROR") showError("Could not parse this PDF file.");
+    else if (msg.includes("encrypted") || msg.includes("password")) showError("This PDF is encrypted or password-protected and cannot be analysed.");
+    else showError("Could not parse this PDF file.");
+  } finally {
+    spinner.style.display = 'none';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Render report
+// ---------------------------------------------------------------------------
+function renderReport() {
+  if (!report) return;
+  reportSection.style.display = '';
+  reportSection.innerHTML = '';
+
+  var errorCount = report.issues.filter(function(i) { return i.severity === "error"; }).length;
+  var warningCount = report.issues.filter(function(i) { return i.severity === "warning"; }).length;
+  var infoCount = report.issues.filter(function(i) { return i.severity === "info"; }).length;
+
+  // Left panel
+  var leftPanel = document.createElement('div');
+  leftPanel.style.cssText = 'display:flex;flex-direction:column;gap:1rem;';
+
+  var previewTitle = document.createElement('h3');
+  previewTitle.className = 'pf-section-title';
+  previewTitle.textContent = 'Page Preview';
+  leftPanel.appendChild(previewTitle);
+
+  if (pdfDoc) {
+    var canvasWrap = document.createElement('div');
+    canvasWrap.className = 'pf-preview-canvas-wrap';
+    canvasEl = document.createElement('canvas');
+    canvasWrap.appendChild(canvasEl);
+    leftPanel.appendChild(canvasWrap);
+
+    // Nav
+    var nav = document.createElement('div');
+    nav.className = 'pf-page-nav';
+    nav.innerHTML =
+      '<button class="pf-page-nav-btn" id="prevPage" title="Previous page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 3L5 8L10 13"/></svg></button>' +
+      '<span class="pf-page-label" id="pageLabel">Page 1 of ' + report.pageCount + '</span>' +
+      '<button class="pf-page-nav-btn" id="nextPage" title="Next page"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 3L11 8L6 13"/></svg></button>';
+    leftPanel.appendChild(nav);
+
+    document.getElementById('prevPage') || nav.querySelector('#prevPage').addEventListener('click', function() { goPage(currentPage - 1); });
+    nav.querySelector('#nextPage').addEventListener('click', function() { goPage(currentPage + 1); });
+
+    // Legend
+    var legend = document.createElement('div');
+    legend.className = 'pf-legend';
+    legend.innerHTML =
+      '<span class="pf-legend-item"><span class="pf-legend-line" style="border-color:#3b82f6;"></span> Trim</span>' +
+      '<span class="pf-legend-item"><span class="pf-legend-line" style="border-color:#ef4444;"></span> Bleed</span>' +
+      '<span class="pf-legend-item"><span class="pf-legend-line" style="border-color:#22c55e;"></span> Crop</span>';
+    leftPanel.appendChild(legend);
+
+    renderCanvas();
+  } else {
+    var unavail = document.createElement('div');
+    unavail.className = 'pf-preview-unavail';
+    unavail.textContent = 'Page preview unavailable';
+    leftPanel.appendChild(unavail);
+  }
+
+  // Page dimensions
+  var dimsDiv = document.createElement('div');
+  dimsDiv.className = 'pf-dims';
+  dimsDiv.id = 'pageDims';
+  leftPanel.appendChild(dimsDiv);
+  updateDims();
+
+  // Page issues
+  var pageIssuesDiv = document.createElement('div');
+  pageIssuesDiv.id = 'pageIssues';
+  leftPanel.appendChild(pageIssuesDiv);
+  updatePageIssues();
+
+  reportSection.appendChild(leftPanel);
+
+  // Right panel
+  var rightPanel = document.createElement('div');
+  rightPanel.style.cssText = 'display:flex;flex-direction:column;gap:1rem;';
+
+  // Pass/fail banner
+  var banner = document.createElement('div');
+  banner.className = 'pf-banner ' + (errorCount === 0 ? 'pass' : 'fail');
+  if (errorCount === 0) {
+    banner.innerHTML = '<svg class="pf-banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12L11 15L16 9"/></svg><div><p class="pf-banner-title">Ready for print</p><p class="pf-banner-sub">No critical issues found</p></div>';
+  } else {
+    banner.innerHTML = '<svg class="pf-banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 8L16 16"/><path d="M16 8L8 16"/></svg><div><p class="pf-banner-title">Issues found</p><p class="pf-banner-sub">' + errorCount + ' error' + (errorCount !== 1 ? 's' : '') + ' must be resolved before printing</p></div>';
+  }
+  rightPanel.appendChild(banner);
+
+  // Severity chips
+  var chips = document.createElement('div');
+  chips.className = 'pf-chips';
+  if (errorCount > 0) chips.innerHTML += '<span class="pf-chip pf-chip-error">' + errorCount + ' error' + (errorCount !== 1 ? 's' : '') + '</span>';
+  if (warningCount > 0) chips.innerHTML += '<span class="pf-chip pf-chip-warning">' + warningCount + ' warning' + (warningCount !== 1 ? 's' : '') + '</span>';
+  if (infoCount > 0) chips.innerHTML += '<span class="pf-chip pf-chip-info">' + infoCount + ' info</span>';
+  if (report.issues.length === 0) chips.innerHTML += '<span class="pf-chip pf-chip-pass">All checks passed</span>';
+  rightPanel.appendChild(chips);
+
+  rightPanel.appendChild(createSep());
+
+  // Summary grid
+  var summary = document.createElement('div');
+  summary.className = 'pf-summary';
+  summary.innerHTML =
+    '<span class="pf-summary-label">PDF Version</span><span>' + report.pdfVersion + '</span>' +
+    '<span class="pf-summary-label">Pages</span><span>' + report.pageCount + '</span>' +
+    '<span class="pf-summary-label">File Size</span><span>' + formatSize(report.fileSize) + '</span>' +
+    '<span class="pf-summary-label">Encrypted</span><span>' + (report.encrypted ? 'Yes' : 'No') + '</span>' +
+    '<span class="pf-summary-label">Fonts</span><span>' + report.fonts.length + ' (' + report.fonts.filter(function(f) { return f.embedded; }).length + ' embedded)</span>';
+  rightPanel.appendChild(summary);
+
+  // Font list
+  if (report.fonts.length > 0) {
+    rightPanel.appendChild(createSep());
+    var fontSec = document.createElement('div');
+    var fontTitle = document.createElement('h4');
+    fontTitle.className = 'pf-section-title';
+    fontTitle.textContent = 'Fonts';
+    fontSec.appendChild(fontTitle);
+
+    report.fonts.forEach(function(font) {
+      var row = document.createElement('div');
+      row.className = 'pf-font-row';
+      var nameSpan = '<span class="pf-font-name">' + escHtml(font.name) + (font.type ? '<span class="pf-font-type">(' + escHtml(font.type) + ')</span>' : '') + '</span>';
+      var statusSpan = '<span class="' + (font.embedded ? 'pf-font-embedded' : 'pf-font-not-embedded') + '">' + (font.embedded ? 'Embedded' : 'Not embedded') + '</span>';
+      row.innerHTML = nameSpan + '<div class="pf-font-status">' + statusSpan + '</div>';
+
+      if (font.data) {
+        var dlBtn = document.createElement('button');
+        dlBtn.className = 'pf-font-dl';
+        dlBtn.title = 'Download ' + font.name + font.extension;
+        dlBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2V11"/><path d="M4 8L8 12L12 8"/><path d="M2 14H14"/></svg>';
+        dlBtn.addEventListener('click', function() {
+          var bytes = font.data;
+          var buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+          var blob = new Blob([buf], { type: 'application/octet-stream' });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = font.name + font.extension;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+        row.querySelector('.pf-font-status').appendChild(dlBtn);
+      }
+      fontSec.appendChild(row);
+    });
+    rightPanel.appendChild(fontSec);
+  }
+
+  // Issues by category
+  var categories = ["document","geometry","fonts","colour","images","transparency"];
+  var issuesByCategory = {};
+  categories.forEach(function(cat) {
+    var catIssues = report.issues.filter(function(i) { return i.category === cat; });
+    if (catIssues.length > 0) issuesByCategory[cat] = catIssues;
+  });
+
+  if (Object.keys(issuesByCategory).length > 0) {
+    rightPanel.appendChild(createSep());
+    var catContainer = document.createElement('div');
+    var catTitle = document.createElement('h4');
+    catTitle.className = 'pf-section-title';
+    catTitle.textContent = 'Issues by Category';
+    catContainer.appendChild(catTitle);
+
+    Object.keys(issuesByCategory).forEach(function(cat) {
+      var catDiv = document.createElement('div');
+      catDiv.style.marginBottom = '1rem';
+      var catLabel = document.createElement('div');
+      catLabel.className = 'pf-issue-cat-title';
+      catLabel.textContent = CATEGORY_LABELS[cat];
+      catDiv.appendChild(catLabel);
+
+      issuesByCategory[cat].forEach(function(issue) {
+        var card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'pf-issue-card' + (issue.page ? ' clickable' : '');
+        card.innerHTML = svgIcon(issue.severity) +
+          '<div style="min-width:0;flex:1;">' +
+            '<p class="pf-issue-msg">' + escHtml(issue.message) + (issue.page ? '<span class="pf-issue-page">p.' + issue.page + '</span>' : '') + '</p>' +
+            (issue.details ? '<p class="pf-issue-details">' + escHtml(issue.details) + '</p>' : '') +
+          '</div>';
+        if (issue.page) {
+          card.addEventListener('click', function() { goPage(issue.page); });
+        }
+        catDiv.appendChild(card);
+      });
+
+      catContainer.appendChild(catDiv);
+    });
+    rightPanel.appendChild(catContainer);
+  }
+
+  // Issues by page
+  var issuesByPage = [];
+  for (var p = 1; p <= report.pageCount; p++) {
+    var pageIssues = report.issues.filter(function(i) { return i.page === p; });
+    if (pageIssues.length > 0) issuesByPage.push({ page: p, issues: pageIssues });
+  }
+
+  if (issuesByPage.length > 0) {
+    rightPanel.appendChild(createSep());
+    var pageContainer = document.createElement('div');
+    var pageTitle = document.createElement('h4');
+    pageTitle.className = 'pf-section-title';
+    pageTitle.textContent = 'Issues by Page';
+    pageContainer.appendChild(pageTitle);
+
+    issuesByPage.forEach(function(entry) {
+      var entryDiv = document.createElement('div');
+      entryDiv.style.marginBottom = '0.75rem';
+      var titleBtn = document.createElement('button');
+      titleBtn.type = 'button';
+      titleBtn.className = 'pf-bypage-title';
+      titleBtn.textContent = 'Page ' + entry.page;
+      titleBtn.addEventListener('click', function() { goPage(entry.page); });
+      entryDiv.appendChild(titleBtn);
+
+      entry.issues.forEach(function(issue) {
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'pf-bypage-row';
+        row.innerHTML = svgIconSmall(issue.severity) + '<span>' + escHtml(issue.message) + '</span>';
+        row.addEventListener('click', function() { goPage(entry.page); });
+        entryDiv.appendChild(row);
+      });
+
+      pageContainer.appendChild(entryDiv);
+    });
+    rightPanel.appendChild(pageContainer);
+  }
+
+  reportSection.appendChild(rightPanel);
+
+  // Taxiway CTA
+  var taxiway = document.createElement('a');
+  taxiway.className = 'pf-taxiway';
+  taxiway.href = 'https://rmv.fyi/projects/taxiway';
+  taxiway.target = '_blank';
+  taxiway.rel = 'noopener noreferrer';
+  taxiway.innerHTML = '<span class="pf-taxiway-text">Need more? <strong>Taxiway</strong> is a free native macOS app with 55 checks, automated fixes, and full PDF inspection.</span><svg class="pf-taxiway-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 3H13V10"/><path d="M13 3L5 11"/></svg>';
+  reportSection.appendChild(taxiway);
+}
+
+function createSep() {
+  var sep = document.createElement('hr');
+  sep.className = 'pf-sep';
+  return sep;
+}
+
+function escHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---------------------------------------------------------------------------
+// Page navigation & rendering
+// ---------------------------------------------------------------------------
+function goPage(num) {
+  if (!report) return;
+  num = Math.max(1, Math.min(report.pageCount, num));
+  if (num === currentPage) return;
+  currentPage = num;
+  renderCanvas();
+  updateDims();
+  updatePageIssues();
+  updateNav();
+}
+window.goPage = goPage;
+
+function updateNav() {
+  var label = document.getElementById('pageLabel');
+  var prev = document.getElementById('prevPage');
+  var next = document.getElementById('nextPage');
+  if (label) label.textContent = 'Page ' + currentPage + ' of ' + report.pageCount;
+  if (prev) prev.disabled = currentPage <= 1;
+  if (next) next.disabled = currentPage >= report.pageCount;
+}
+
+function updateDims() {
+  var dimsDiv = document.getElementById('pageDims');
+  if (!dimsDiv || !report) return;
+  var pageInfo = report.pages[currentPage - 1];
+  if (!pageInfo) { dimsDiv.innerHTML = ''; return; }
+  var html = '<p><span class="pf-dim-label">Page size:</span> ' + pageInfo.width.toFixed(0) + ' x ' + pageInfo.height.toFixed(0) + 'pt (' + ptsToMm(pageInfo.width).toFixed(0) + ' x ' + ptsToMm(pageInfo.height).toFixed(0) + 'mm)</p>';
+  if (pageInfo.trimBox) html += '<p><span class="pf-dim-label">Trim:</span> ' + pageInfo.trimBox.width.toFixed(0) + ' x ' + pageInfo.trimBox.height.toFixed(0) + 'pt</p>';
+  if (pageInfo.bleedBox) html += '<p><span class="pf-dim-label">Bleed:</span> ' + pageInfo.bleedBox.width.toFixed(0) + ' x ' + pageInfo.bleedBox.height.toFixed(0) + 'pt</p>';
+  dimsDiv.innerHTML = html;
+}
+
+function updatePageIssues() {
+  var container = document.getElementById('pageIssues');
+  if (!container || !report) return;
+  var pageIssues = report.issues.filter(function(i) { return i.page === currentPage; });
+  if (pageIssues.length === 0) { container.innerHTML = ''; return; }
+  var html = '<div class="pf-issue-cat-title">Page ' + currentPage + ' issues</div>';
+  pageIssues.forEach(function(issue) {
+    html += '<div class="pf-page-issue">' + svgIconSmall(issue.severity) +
+      '<div style="min-width:0;"><p style="font-size:0.75rem;font-weight:500;">' + escHtml(issue.message) + '</p>' +
+      (issue.details ? '<p style="font-size:0.75rem;color:var(--text-faint);margin-top:0.125rem;">' + escHtml(issue.details) + '</p>' : '') +
+      '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+async function renderCanvas() {
+  if (!pdfDoc || !canvasEl || !report) return;
+  var page = await pdfDoc.getPage(currentPage);
+  var viewport = page.getViewport({ scale: 1 });
+  var desiredWidth = 600;
+  var scale = desiredWidth / viewport.width;
+  var scaledViewport = page.getViewport({ scale: scale });
+
+  canvasEl.width = scaledViewport.width;
+  canvasEl.height = scaledViewport.height;
+  var ctx = canvasEl.getContext('2d');
+  if (!ctx) return;
+
+  await page.render({ canvas: canvasEl, viewport: scaledViewport }).promise;
+
+  // Draw box overlays
+  var pageInfo = report.pages[currentPage - 1];
+  if (!pageInfo) return;
+  var mediaBox = pageInfo.mediaBox;
+
+  function drawBox(box, colour) {
+    if (!box) return;
+    var x1 = (box.x - mediaBox.x) * scale;
+    var y1 = canvasEl.height - (box.y + box.height - mediaBox.y) * scale;
+    var w = box.width * scale;
+    var h = box.height * scale;
+    ctx.save();
+    ctx.strokeStyle = colour;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.strokeRect(x1, y1, w, h);
+    ctx.restore();
+  }
+
+  drawBox(pageInfo.trimBox, '#3b82f6');
+  drawBox(pageInfo.bleedBox, '#ef4444');
+  drawBox(pageInfo.cropBox, '#22c55e');
+}
+</script>
+
+<!-- Paper texture animation script -->
+<script src="paper-texture.js"></script>
+<!-- Floating depth icons -->
+<script src="floating-icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

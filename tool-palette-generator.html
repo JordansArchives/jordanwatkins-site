@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palette Generator — Jordan's Archives</title>
+<meta name="description" content="Generate harmonious color palettes using 28 strategies across 6 categories. Free tool, no signup required.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+
+<!-- Styles -->
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="tools-page.css">
+
+<!-- Favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='24' font-size='24' fill='%231a2d14'>J</text></svg>" type="image/svg+xml">
+
+<style>
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+}
+.cat-btn {
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--green-dark);
+  background: transparent;
+  color: var(--green-dark);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  border-radius: 0;
+}
+.cat-btn:hover {
+  background: rgba(26, 45, 20, 0.1);
+}
+.cat-btn.active {
+  background: var(--green-dark);
+  color: var(--beige);
+}
+.palette-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1.5px solid var(--green-dark);
+  overflow: hidden;
+}
+.palette-swatch {
+  flex: 1;
+  min-width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.palette-swatch-color {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 6px;
+}
+.palette-swatch-info {
+  width: 100%;
+  padding: 8px 4px;
+  text-align: center;
+  background: rgba(241, 233, 231, 0.7);
+  border-top: 1.5px solid var(--green-dark);
+}
+.palette-swatch-hex {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--green-dark);
+  letter-spacing: 0.02em;
+}
+.swatch-actions {
+  display: flex;
+  gap: 4px;
+}
+.swatch-action-btn {
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  background: rgba(0,0,0,0.15);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: all var(--duration-fast) var(--ease-out);
+  padding: 0;
+}
+.swatch-action-btn:hover {
+  background: rgba(0,0,0,0.35);
+  border-color: rgba(255,255,255,0.6);
+}
+.swatch-action-btn.locked {
+  background: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.7);
+}
+.swatch-action-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.palette-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.strategy-desc {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+  min-height: 1.2em;
+}
+.controls-row {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.controls-row .tool-form-group {
+  margin-bottom: 0;
+}
+.spacebar-hint {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  margin-top: var(--space-2);
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--green-dark);
+  color: var(--beige);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s var(--ease-out);
+  border: 1.5px solid var(--green-dark);
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+@media (max-width: 768px) {
+  .palette-swatch {
+    min-width: 50px;
+  }
+  .palette-swatch-color {
+    height: 90px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Animated paper texture background -->
+<canvas id="paperTexture" class="paper-texture"></canvas>
+
+<!-- Floating depth icons -->
+<div class="floating-icons-layer" id="floatingIcons"></div>
+
+<div class="tools-layout">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <!-- ========== SIDEBAR TEMPLATE ========== -->
+<!-- This exact sidebar must be used in ALL tool pages -->
+<!-- The page for the current tool should have class="active" on its sidebar-link -->
+
+<!-- ========== SIDEBAR TEMPLATE ========== -->
+<!-- This exact sidebar must be used in ALL tool pages -->
+<!-- The page for the current tool should have class="active" on its sidebar-link -->
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" class="sidebar-logo-link">
+        <img src="icon-logo.png" alt="Jordan's Archives" class="sidebar-logo-icon">
+      </a>
+    </div>
+    <nav class="sidebar-nav" aria-label="Tool categories">
+      <a href="index.html" class="sidebar-link sidebar-home" data-tooltip="Home">
+        <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10L10 3L17 10"/><path d="M5 8.5V16.5H8.5V12H11.5V16.5H15V8.5"/></svg>
+        <span class="sidebar-link-text">Home</span>
+      </a>
+
+      <!-- MOST USED -->
+      <div class="sidebar-section sidebar-section-red">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text sidebar-title-red">Most Used</span></div>
+        <a href="tool-partnerships-calculator.html" class="sidebar-link" data-tooltip="Partnerships Calculator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L10 18"/><path d="M13.5 5.5C13.5 4 12 3 10 3C8 3 6.5 4 6.5 5.5C6.5 7 8 8 10 8C12 8 13.5 9 13.5 10.5C13.5 12 12 13 10 13C8 13 6.5 12 6.5 10.5"/></svg>
+          <span class="sidebar-link-text">Partnerships Calculator</span>
+        </a>
+        <a href="tool-palette-generator.html" class="sidebar-link active" data-tooltip="Palette Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+          <span class="sidebar-link-text">Palette Generator</span>
+        </a>
+        <a href="tool-qr-generator.html" class="sidebar-link" data-tooltip="QR Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="14" y="14" width="4" height="4"/><path d="M12 12L12 14"/><path d="M14 12L18 12"/></svg>
+          <span class="sidebar-link-text">QR Generator</span>
+        </a>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Content</span></div>
+        <a href="tool-cvg.html" class="sidebar-link" data-tooltip="Content Value Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2C6.5 2 4 5 4 8C4 10.5 5.5 12.5 7.5 13.5L7.5 15.5C7.5 16.5 8.5 17.5 10 17.5C11.5 17.5 12.5 16.5 12.5 15.5L12.5 13.5C14.5 12.5 16 10.5 16 8C16 5 13.5 2 10 2Z"/><path d="M8 15L12 15"/><path d="M8.5 17L11.5 17"/></svg>
+          <span class="sidebar-link-text">Content Value Generator</span>
+        </a>
+        <a href="tool-content-plan.html" class="sidebar-link" data-tooltip="Content Plan Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="15" height="13.5"/><path d="M2.5 8.5L17.5 8.5"/><path d="M6.5 2L6.5 5.5"/><path d="M13.5 2L13.5 5.5"/><circle cx="7" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="10" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="13" cy="12" r="0.8" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Content Plan Generator</span>
+        </a>
+      </div>
+
+      <!-- BRANDING & DESIGN -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Branding &amp; Design</span></div>
+        <a href="tool-typeface-picker.html" class="sidebar-link" data-tooltip="Brand Typeface Picker">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5L10 5L16 5"/><path d="M10 5L10 17"/><path d="M7 17L13 17"/><path d="M2 4C2 3.5 3 2.5 4 2.5L16 2.5C17 2.5 18 3.5 18 4"/></svg>
+          <span class="sidebar-link-text">Brand Typeface Picker</span>
+        </a>
+        <a href="tool-visual-identity-formula.html" class="sidebar-link" data-tooltip="Visual Identity Formula">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14"/><path d="M7 3L7 17"/><path d="M3 8L17 8"/><circle cx="12" cy="12.5" r="2.5"/></svg>
+          <span class="sidebar-link-text">Visual Identity Formula</span>
+        </a>
+        <a href="tool-palette-generator.html" class="sidebar-link active" data-tooltip="Palette Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+          <span class="sidebar-link-text">Palette Generator</span>
+        </a>
+        <a href="tool-palette-collection.html" class="sidebar-link" data-tooltip="Palette Collection">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="4" rx="1"/><rect x="2" y="8" width="16" height="4" rx="1"/><rect x="2" y="13" width="16" height="4" rx="1"/></svg>
+          <span class="sidebar-link-text">Palette Collection</span>
+        </a>
+        <a href="tool-contrast-checker.html" class="sidebar-link" data-tooltip="Contrast Checker">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><path d="M10 2L10 18" stroke="none"/><path d="M10 2A8 8 0 0 1 10 18Z" fill="currentColor"/></svg>
+          <span class="sidebar-link-text">Contrast Checker</span>
+        </a>
+        <a href="tool-color-converter.html" class="sidebar-link" data-tooltip="Color Converter">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14L6.5 3L11 14"/><path d="M3.5 11L9.5 11"/><path d="M14 8L14 16"/><path d="M11 12.5L17 12.5"/></svg>
+          <span class="sidebar-link-text">Color Converter</span>
+        </a>
+        <a href="tool-glyph-browser.html" class="sidebar-link" data-tooltip="Glyph Browser">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4L8 16"/><path d="M12 4C12 4 16 4 16 8C16 12 12 12 12 12"/><circle cx="14" cy="15" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Glyph Browser</span>
+        </a>
+      </div>
+
+      <!-- IMAGE & ASSETS -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Image &amp; Assets</span></div>
+        <a href="tool-background-remover.html" class="sidebar-link" data-tooltip="Background Remover">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="16" height="16" rx="2"/><path d="M2 14L7 9L11 13"/><path d="M12 11L15 8L18 11"/><circle cx="13.5" cy="6" r="1.5"/></svg>
+          <span class="sidebar-link-text">Background Remover</span>
+        </a>
+        <a href="tool-svg-optimizer.html" class="sidebar-link" data-tooltip="SVG Optimizer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3L17 3L17 17L3 17Z"/><path d="M7 7L10 13L13 7"/></svg>
+          <span class="sidebar-link-text">SVG Optimizer</span>
+        </a>
+        <a href="tool-image-converter.html" class="sidebar-link" data-tooltip="Image Converter">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="10" height="12" rx="1"/><path d="M14 7L18 7L18 17L8 17"/><path d="M5 10L8 7.5L11 10"/></svg>
+          <span class="sidebar-link-text">Image Converter</span>
+        </a>
+        <a href="tool-image-tracer.html" class="sidebar-link" data-tooltip="Image Tracer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L8 4L13 13L17 6"/><circle cx="3" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Image Tracer</span>
+        </a>
+        <a href="tool-qr-generator.html" class="sidebar-link" data-tooltip="QR Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="14" y="14" width="4" height="4"/><path d="M12 12L12 14"/><path d="M14 12L18 12"/></svg>
+          <span class="sidebar-link-text">QR Generator</span>
+        </a>
+      </div>
+
+      <!-- SOCIAL MEDIA -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Social Media</span></div>
+        <a href="tool-bio-optimizer.html" class="sidebar-link" data-tooltip="Bio Optimizer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5C4 3.5 5 2.5 6 2.5L14 2.5C15 2.5 16 3.5 16 4.5L16 13C16 14 15 15 14 15L10 15L6.5 18L7 15L6 15C5 15 4 14 4 13Z"/><path d="M7 7L13 7"/><path d="M7 10L11 10"/></svg>
+          <span class="sidebar-link-text">Bio Optimizer</span>
+        </a>
+        <a href="tool-partnerships-calculator.html" class="sidebar-link" data-tooltip="Partnerships Calculator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L10 18"/><path d="M13.5 5.5C13.5 4 12 3 10 3C8 3 6.5 4 6.5 5.5C6.5 7 8 8 10 8C12 8 13.5 9 13.5 10.5C13.5 12 12 13 10 13C8 13 6.5 12 6.5 10.5"/></svg>
+          <span class="sidebar-link-text">Partnerships Calculator</span>
+        </a>
+      </div>
+
+      <!-- PRINT & PRODUCTION -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Print &amp; Production</span></div>
+        <a href="tool-pdf-preflight.html" class="sidebar-link" data-tooltip="PDF Preflight">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2L12 2L16 6L16 18L4 18Z"/><path d="M12 2L12 6L16 6"/><path d="M7 11L9 13L13 9"/></svg>
+          <span class="sidebar-link-text">PDF Preflight</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <p class="sidebar-footer-msg">No signup. No tracking.<br>Just tools.</p>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <button class="topbar-toggle topbar-hamburger" id="sidebarToggle" aria-label="Open sidebar menu">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M3 5H17"/><path d="M3 10H17"/><path d="M3 15H17"/>
+        </svg>
+      </button>
+      <button class="topbar-toggle topbar-collapse-btn" id="sidebarCollapseToggle" aria-label="Toggle sidebar collapse">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="16" height="14"/><path d="M8 3L8 17"/>
+        </svg>
+      </button>
+      <div class="breadcrumb">
+        <a href="index.html">jordan's archives</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="tools.html">free tools</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>Palette Generator</span>
+      </div>
+    </div>
+
+    <!-- Tool Page Header -->
+    <div class="tool-page-header">
+      <div class="tool-page-header-inner">
+        <div class="tool-page-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+        </div>
+        <div class="tool-page-info">
+          <span class="tool-page-badge">Branding &amp; Design</span>
+          <h1 class="tool-page-title">Palette Generator</h1>
+          <p class="tool-page-desc">Generate harmonious color palettes using 28 strategies across 6 categories.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Embedded Tool -->
+    <div class="tool-embed">
+
+      <!-- Strategy Selection Section -->
+      <div class="tool-section">
+        <h3 class="tool-section-title">Strategy</h3>
+
+        <!-- Category Filters -->
+        <div class="category-filters" id="categoryFilters">
+          <button class="cat-btn active" data-category="all">All</button>
+          <button class="cat-btn" data-category="random">Random</button>
+          <button class="cat-btn" data-category="color-theory">Color Theory</button>
+          <button class="cat-btn" data-category="mood">Moods</button>
+          <button class="cat-btn" data-category="era">Decades &amp; Eras</button>
+          <button class="cat-btn" data-category="nature">Nature &amp; Scenes</button>
+          <button class="cat-btn" data-category="cultural">Art &amp; Culture</button>
+        </div>
+
+        <!-- Strategy Dropdown -->
+        <div class="tool-form-group">
+          <label class="tool-label" for="strategySelect">Strategy</label>
+          <select class="tool-select" id="strategySelect"></select>
+          <div class="strategy-desc" id="strategyDesc"></div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="controls-row">
+          <div class="tool-form-group" style="width: 120px;">
+            <label class="tool-label" for="colorCount">Colors</label>
+            <input type="number" class="tool-input" id="colorCount" min="2" max="11" value="5">
+          </div>
+          <div class="tool-form-group">
+            <button class="tool-btn" id="generateBtn">Generate</button>
+          </div>
+        </div>
+        <div class="spacebar-hint">Press <strong>spacebar</strong> to regenerate</div>
+      </div>
+
+      <!-- Palette Display Section -->
+      <div class="tool-section" id="paletteDisplay">
+        <h3 class="tool-section-title">Palette</h3>
+        <div class="palette-row" id="paletteRow"></div>
+        <div class="palette-actions">
+          <button class="tool-btn tool-btn-sm" id="copyAllBtn">Copy All</button>
+          <button class="tool-btn tool-btn-sm tool-btn-outline" id="exportCssBtn">Export CSS</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="tools-footer">
+      <span>jordan's archives</span>
+      <div>
+        <a href="index.html">home</a>
+        <span style="margin: 0 0.5rem; opacity: 0.3;">&middot;</span>
+        <a href="about.html">about</a>
+        <span style="margin: 0 0.5rem; opacity: 0.3;">&middot;</span>
+        <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+      </div>
+    </footer>
+
+  </main>
+
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ===== STRATEGY DATA =====
+
+  var STRATEGY_CATEGORIES = {
+    random: "Random",
+    "color-theory": "Color Theory",
+    mood: "Moods",
+    era: "Decades & Eras",
+    nature: "Nature & Scenes",
+    cultural: "Art & Culture"
+  };
+
+  var STRATEGY_INFO = {
+    "true-random": { name: "Chaos", description: "Completely random, no rules", category: "random" },
+    "random-cohesive": { name: "Random", description: "Random cohesive palette", category: "random" },
+    analogous: { name: "Analogous", description: "Adjacent hues on the colour wheel", category: "color-theory" },
+    complementary: { name: "Complementary", description: "Opposite hues for high contrast", category: "color-theory" },
+    triadic: { name: "Triadic", description: "Three evenly spaced hues", category: "color-theory" },
+    "split-complementary": { name: "Split-Comp", description: "Base + two adjacent to complement", category: "color-theory" },
+    tetradic: { name: "Tetradic", description: "Four evenly spaced hues", category: "color-theory" },
+    monochromatic: { name: "Mono", description: "Single hue, varied lightness", category: "color-theory" },
+    thermos: { name: "Thermos", description: "Warm, cozy, retro tones", category: "mood" },
+    specimen: { name: "Specimen", description: "Cool, clinical, preserved", category: "mood" },
+    souvenir: { name: "Souvenir", description: "Soft, faded pastels", category: "mood" },
+    curfew: { name: "Curfew", description: "Dark, moody depths", category: "mood" },
+    telegraph: { name: "Telegraph", description: "Muted vintage sepia", category: "mood" },
+    "70s": { name: "1970s", description: "Earth tones, burnt orange, avocado", category: "era" },
+    "80s": { name: "1980s", description: "Neon pink, electric blue, hot purple", category: "era" },
+    "90s": { name: "1990s", description: "Grunge, forest green, burgundy", category: "era" },
+    y2k: { name: "Y2K", description: "Chrome, cyan, magenta", category: "era" },
+    "ocean-sunset": { name: "Ocean Sunset", description: "Coral, rose, ocean blue, dusk", category: "nature" },
+    "forest-morning": { name: "Forest Morning", description: "Fresh greens, mist, golden light", category: "nature" },
+    "desert-dusk": { name: "Desert Dusk", description: "Terracotta, sand, dusty rose", category: "nature" },
+    arctic: { name: "Arctic", description: "Ice blue, white, pale cyan", category: "nature" },
+    volcanic: { name: "Volcanic", description: "Black, deep red, orange, ash", category: "nature" },
+    meadow: { name: "Meadow", description: "Grass green, wildflowers, sky blue", category: "nature" },
+    bauhaus: { name: "Bauhaus", description: "Primary colors, geometric, bold", category: "cultural" },
+    "art-deco": { name: "Art Deco", description: "Gold, black, cream, emerald", category: "cultural" },
+    japanese: { name: "Japanese", description: "Indigo, vermillion, gold, cream", category: "cultural" },
+    scandinavian: { name: "Scandinavian", description: "White, pale grey, muted pastels", category: "cultural" },
+    mexican: { name: "Mexican", description: "Hot pink, orange, turquoise, yellow", category: "cultural" }
+  };
+
+  // ===== OKLCH COLOR UTILITIES =====
+
+  function rgbToHex(r, g, b) {
+    return "#" + [r, g, b].map(function(x) { return Math.round(Math.max(0, Math.min(255, x))).toString(16).padStart(2, "0"); }).join("");
+  }
+
+  function linearToSrgb(c) {
+    var v = c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+    return Math.max(0, Math.min(255, v * 255));
+  }
+
+  function oklchToRgb(L, c, h) {
+    var hRad = h * Math.PI / 180;
+    var a = c * Math.cos(hRad);
+    var b = c * Math.sin(hRad);
+    var l = Math.pow(L + 0.3963377774 * a + 0.2158037573 * b, 3);
+    var m = Math.pow(L - 0.1055613458 * a - 0.0638541728 * b, 3);
+    var s = Math.pow(L - 0.0894841775 * a - 1.2914855480 * b, 3);
+    var lr = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+    var lg = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+    var lb = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+    return [linearToSrgb(lr), linearToSrgb(lg), linearToSrgb(lb)];
+  }
+
+  function clampOklch(L, c, h) {
+    L = Math.max(0, Math.min(1, L));
+    c = Math.max(0, Math.min(0.4, c));
+    h = ((h % 360) + 360) % 360;
+    return [L, c, h];
+  }
+
+  function oklchToHex(L, c, h) {
+    var clamped = clampOklch(L, c, h);
+    var rgb = oklchToRgb(clamped[0], clamped[1], clamped[2]);
+    return rgbToHex(Math.round(Math.max(0, Math.min(255, rgb[0]))), Math.round(Math.max(0, Math.min(255, rgb[1]))), Math.round(Math.max(0, Math.min(255, rgb[2]))));
+  }
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function generateRandomBase() {
+    return [randomInRange(0.4, 0.75), randomInRange(0.08, 0.2), randomInRange(0, 360)];
+  }
+
+  function pickFromHueRanges(ranges, defaultL, defaultC) {
+    var totalWeight = ranges.reduce(function(sum, r) { return sum + r.weight; }, 0);
+    var random = Math.random() * totalWeight;
+    var selectedRange = ranges[0];
+    for (var i = 0; i < ranges.length; i++) {
+      random -= ranges[i].weight;
+      if (random <= 0) { selectedRange = ranges[i]; break; }
+    }
+    var h = randomInRange(selectedRange.h[0], selectedRange.h[1]);
+    var L = randomInRange.apply(null, selectedRange.L || defaultL);
+    var c = randomInRange.apply(null, selectedRange.c || defaultC);
+    return oklchToHex(L, c, h);
+  }
+
+  // ===== TEXT CONTRAST HELPER =====
+
+  function getTextColor(hex) {
+    var r = parseInt(hex.slice(1,3), 16);
+    var g = parseInt(hex.slice(3,5), 16);
+    var b = parseInt(hex.slice(5,7), 16);
+    var luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5 ? '#1a2d14' : '#ffffff';
+  }
+
+  // ===== ALL 28 GENERATOR FUNCTIONS =====
+
+  // 1. True Random
+  function generateTrueRandomPalette(count) {
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var r = Math.floor(Math.random() * 256);
+      var g = Math.floor(Math.random() * 256);
+      var b = Math.floor(Math.random() * 256);
+      colors.push(rgbToHex(r, g, b));
+    }
+    return colors;
+  }
+
+  // 2. Random Cohesive
+  function generateRandomCohesivePalette(count) {
+    var strategies = [generateAnalogousPalette, generateComplementaryPalette, generateTriadicPalette, generateSplitComplementaryPalette, generateTetradicPalette, generateMonochromaticPalette];
+    var idx = Math.floor(Math.random() * strategies.length);
+    return strategies[idx](count);
+  }
+
+  // 3. Analogous
+  function generateAnalogousPalette(count) {
+    var base = generateRandomBase();
+    var spread = 40;
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var t = count === 1 ? 0.5 : i / (count - 1);
+      var h = base[2] - spread / 2 + spread * t;
+      var L = base[0] + randomInRange(-0.08, 0.08);
+      var c = base[1] + randomInRange(-0.03, 0.03);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 4. Complementary
+  function generateComplementaryPalette(count) {
+    var base = generateRandomBase();
+    var colors = [];
+    var halfCount = Math.ceil(count / 2);
+    for (var i = 0; i < count; i++) {
+      var hueOffset = i < halfCount ? 0 : 180;
+      var h = base[2] + hueOffset + randomInRange(-15, 15);
+      var L = base[0] + randomInRange(-0.1, 0.1);
+      var c = base[1] + randomInRange(-0.04, 0.04);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 5. Triadic
+  function generateTriadicPalette(count) {
+    var base = generateRandomBase();
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var section = Math.floor(i * 3 / count);
+      var h = base[2] + section * 120 + randomInRange(-15, 15);
+      var L = base[0] + randomInRange(-0.1, 0.1);
+      var c = base[1] + randomInRange(-0.04, 0.04);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 6. Split-Complementary
+  function generateSplitComplementaryPalette(count) {
+    var base = generateRandomBase();
+    var colors = [];
+    var angles = [0, 150, 210];
+    for (var i = 0; i < count; i++) {
+      var angleIdx = Math.floor(i * 3 / count);
+      var h = base[2] + angles[angleIdx] + randomInRange(-10, 10);
+      var L = base[0] + randomInRange(-0.1, 0.1);
+      var c = base[1] + randomInRange(-0.04, 0.04);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 7. Tetradic
+  function generateTetradicPalette(count) {
+    var base = generateRandomBase();
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var section = Math.floor(i * 4 / count);
+      var h = base[2] + section * 90 + randomInRange(-10, 10);
+      var L = base[0] + randomInRange(-0.1, 0.1);
+      var c = base[1] + randomInRange(-0.04, 0.04);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 8. Monochromatic
+  function generateMonochromaticPalette(count) {
+    var base = generateRandomBase();
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var t = count === 1 ? 0.5 : i / (count - 1);
+      var L = 0.25 + t * 0.55;
+      var c = base[1] * (0.6 + t * 0.8);
+      colors.push(oklchToHex(L, c, base[2] + randomInRange(-3, 3)));
+    }
+    return colors;
+  }
+
+  // 9. Thermos
+  function generateThermosPalette(count) {
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var h = randomInRange(15, 55);
+      var L = randomInRange(0.45, 0.75);
+      var c = randomInRange(0.08, 0.18);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 10. Specimen
+  function generateSpecimenPalette(count) {
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var h = randomInRange(170, 220);
+      var L = randomInRange(0.6, 0.9);
+      var c = randomInRange(0.03, 0.12);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 11. Souvenir
+  function generateSouvenirPalette(count) {
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var h = randomInRange(0, 360);
+      var L = randomInRange(0.75, 0.92);
+      var c = randomInRange(0.04, 0.10);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 12. Curfew
+  function generateCurfewPalette(count) {
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var h = randomInRange(0, 360);
+      var L = randomInRange(0.15, 0.35);
+      var c = randomInRange(0.05, 0.15);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 13. Telegraph
+  function generateTelegraphPalette(count) {
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var h = randomInRange(30, 60);
+      var L = randomInRange(0.4, 0.7);
+      var c = randomInRange(0.02, 0.08);
+      colors.push(oklchToHex(L, c, h));
+    }
+    return colors;
+  }
+
+  // 14. 70s
+  function generate70sPalette(count) {
+    var ranges = [
+      { h: [30, 45], L: [0.55, 0.7], c: [0.12, 0.18], weight: 3 },
+      { h: [100, 130], L: [0.45, 0.6], c: [0.08, 0.14], weight: 2 },
+      { h: [15, 30], L: [0.45, 0.6], c: [0.1, 0.16], weight: 2 },
+      { h: [55, 75], L: [0.6, 0.75], c: [0.1, 0.16], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      colors.push(pickFromHueRanges(ranges, [0.5, 0.65], [0.1, 0.16]));
+    }
+    return colors;
+  }
+
+  // 15. 80s
+  function generate80sPalette(count) {
+    var ranges = [
+      { h: [340, 360], L: [0.6, 0.8], c: [0.2, 0.32], weight: 3 },
+      { h: [250, 280], L: [0.45, 0.65], c: [0.18, 0.28], weight: 2 },
+      { h: [290, 320], L: [0.5, 0.7], c: [0.18, 0.28], weight: 2 },
+      { h: [190, 220], L: [0.55, 0.75], c: [0.15, 0.25], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      if (Math.random() < 0.2) {
+        colors.push(oklchToHex(randomInRange(0.1, 0.2), randomInRange(0, 0.02), randomInRange(0, 360)));
+      } else {
+        colors.push(pickFromHueRanges(ranges, [0.55, 0.75], [0.2, 0.3]));
+      }
+    }
+    return colors;
+  }
+
+  // 16. 90s
+  function generate90sPalette(count) {
+    var ranges = [
+      { h: [140, 165], L: [0.35, 0.5], c: [0.08, 0.14], weight: 3 },
+      { h: [350, 370], L: [0.3, 0.45], c: [0.08, 0.14], weight: 2 },
+      { h: [240, 260], L: [0.25, 0.4], c: [0.06, 0.12], weight: 2 },
+      { h: [60, 80], L: [0.6, 0.72], c: [0.06, 0.1], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      colors.push(pickFromHueRanges(ranges, [0.35, 0.5], [0.08, 0.14]));
+    }
+    return colors;
+  }
+
+  // 17. Y2K
+  function generateY2KPalette(count) {
+    var ranges = [
+      { h: [190, 210], L: [0.65, 0.85], c: [0.12, 0.22], weight: 2.5 },
+      { h: [320, 345], L: [0.6, 0.8], c: [0.15, 0.25], weight: 2.5 },
+      { h: [270, 295], L: [0.65, 0.82], c: [0.1, 0.18], weight: 2 },
+      { h: [115, 140], L: [0.7, 0.85], c: [0.12, 0.2], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      if (Math.random() < 0.3) {
+        colors.push(oklchToHex(randomInRange(0.75, 0.88), randomInRange(0, 0.03), randomInRange(240, 280)));
+      } else {
+        colors.push(pickFromHueRanges(ranges, [0.65, 0.82], [0.12, 0.22]));
+      }
+    }
+    return colors;
+  }
+
+  // 18. Ocean Sunset
+  function generateOceanSunsetPalette(count) {
+    var ranges = [
+      { h: [15, 35], L: [0.65, 0.8], c: [0.12, 0.2], weight: 2.5 },
+      { h: [350, 370], L: [0.6, 0.75], c: [0.1, 0.18], weight: 2 },
+      { h: [230, 260], L: [0.4, 0.6], c: [0.08, 0.16], weight: 2.5 },
+      { h: [280, 310], L: [0.3, 0.5], c: [0.08, 0.15], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      colors.push(pickFromHueRanges(ranges, [0.5, 0.7], [0.1, 0.18]));
+    }
+    return colors;
+  }
+
+  // 19. Forest Morning
+  function generateForestMorningPalette(count) {
+    var ranges = [
+      { h: [130, 160], L: [0.4, 0.6], c: [0.08, 0.16], weight: 3 },
+      { h: [160, 180], L: [0.55, 0.7], c: [0.04, 0.1], weight: 1.5 },
+      { h: [75, 95], L: [0.65, 0.78], c: [0.1, 0.16], weight: 1.5 },
+      { h: [40, 60], L: [0.4, 0.55], c: [0.06, 0.1], weight: 1 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      if (Math.random() < 0.25) {
+        colors.push(oklchToHex(randomInRange(0.8, 0.92), randomInRange(0.01, 0.04), randomInRange(180, 220)));
+      } else {
+        colors.push(pickFromHueRanges(ranges, [0.45, 0.65], [0.08, 0.14]));
+      }
+    }
+    return colors;
+  }
+
+  // 20. Desert Dusk
+  function generateDesertDuskPalette(count) {
+    var ranges = [
+      { h: [20, 40], L: [0.5, 0.65], c: [0.1, 0.16], weight: 3 },
+      { h: [50, 70], L: [0.7, 0.82], c: [0.06, 0.12], weight: 2 },
+      { h: [350, 370], L: [0.6, 0.75], c: [0.06, 0.12], weight: 2 },
+      { h: [280, 310], L: [0.25, 0.4], c: [0.08, 0.14], weight: 1 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      colors.push(pickFromHueRanges(ranges, [0.5, 0.68], [0.08, 0.14]));
+    }
+    return colors;
+  }
+
+  // 21. Arctic
+  function generateArcticPalette(count) {
+    var ranges = [
+      { h: [210, 240], L: [0.7, 0.88], c: [0.04, 0.1], weight: 3 },
+      { h: [190, 210], L: [0.75, 0.9], c: [0.05, 0.12], weight: 2 },
+      { h: [240, 260], L: [0.55, 0.7], c: [0.03, 0.08], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      if (Math.random() < 0.3) {
+        colors.push(oklchToHex(randomInRange(0.92, 0.98), randomInRange(0, 0.02), randomInRange(210, 240)));
+      } else {
+        colors.push(pickFromHueRanges(ranges, [0.7, 0.88], [0.04, 0.1]));
+      }
+    }
+    return colors;
+  }
+
+  // 22. Volcanic
+  function generateVolcanicPalette(count) {
+    var ranges = [
+      { h: [15, 35], L: [0.5, 0.65], c: [0.15, 0.25], weight: 3 },
+      { h: [0, 15], L: [0.35, 0.5], c: [0.15, 0.22], weight: 2.5 },
+      { h: [35, 50], L: [0.6, 0.72], c: [0.12, 0.2], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var roll = Math.random();
+      if (roll < 0.25) {
+        colors.push(oklchToHex(randomInRange(0.08, 0.15), randomInRange(0, 0.02), randomInRange(0, 360)));
+      } else if (roll < 0.4) {
+        colors.push(oklchToHex(randomInRange(0.5, 0.65), randomInRange(0, 0.03), randomInRange(50, 80)));
+      } else {
+        colors.push(pickFromHueRanges(ranges, [0.4, 0.6], [0.15, 0.22]));
+      }
+    }
+    return colors;
+  }
+
+  // 23. Meadow
+  function generateMeadowPalette(count) {
+    var ranges = [
+      { h: [120, 150], L: [0.5, 0.7], c: [0.1, 0.18], weight: 3 },
+      { h: [330, 360], L: [0.6, 0.78], c: [0.1, 0.18], weight: 1.5 },
+      { h: [270, 300], L: [0.55, 0.72], c: [0.08, 0.16], weight: 1.5 },
+      { h: [80, 100], L: [0.7, 0.82], c: [0.12, 0.18], weight: 1.5 },
+      { h: [210, 235], L: [0.6, 0.8], c: [0.06, 0.12], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      colors.push(pickFromHueRanges(ranges, [0.55, 0.72], [0.1, 0.16]));
+    }
+    return colors;
+  }
+
+  // 24. Bauhaus
+  function generateBauhausPalette(count) {
+    var ranges = [
+      { h: [25, 35], L: [0.6, 0.72], c: [0.18, 0.25], weight: 3 },
+      { h: [250, 270], L: [0.4, 0.55], c: [0.15, 0.22], weight: 2.5 },
+      { h: [95, 115], L: [0.55, 0.68], c: [0.12, 0.18], weight: 2 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var roll = Math.random();
+      if (roll < 0.2) {
+        colors.push(oklchToHex(randomInRange(0.08, 0.15), randomInRange(0, 0.02), randomInRange(0, 360)));
+      } else if (roll < 0.3) {
+        colors.push(oklchToHex(randomInRange(0.9, 0.96), randomInRange(0.02, 0.05), randomInRange(80, 100)));
+      } else {
+        colors.push(pickFromHueRanges(ranges, [0.5, 0.65], [0.15, 0.22]));
+      }
+    }
+    return colors;
+  }
+
+  // 25. Art Deco
+  function generateArtDecoPalette(count) {
+    var ranges = [
+      { h: [155, 175], L: [0.4, 0.55], c: [0.1, 0.16], weight: 2 },
+      { h: [260, 285], L: [0.35, 0.5], c: [0.1, 0.16], weight: 1.5 },
+      { h: [345, 365], L: [0.4, 0.55], c: [0.1, 0.16], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var roll = Math.random();
+      if (roll < 0.25) {
+        colors.push(oklchToHex(randomInRange(0.7, 0.8), randomInRange(0.1, 0.16), randomInRange(80, 95)));
+      } else if (roll < 0.4) {
+        colors.push(oklchToHex(randomInRange(0.08, 0.15), randomInRange(0, 0.02), randomInRange(0, 360)));
+      } else if (roll < 0.55) {
+        colors.push(oklchToHex(randomInRange(0.88, 0.95), randomInRange(0.02, 0.05), randomInRange(80, 100)));
+      } else {
+        colors.push(pickFromHueRanges(ranges, [0.4, 0.52], [0.1, 0.16]));
+      }
+    }
+    return colors;
+  }
+
+  // 26. Japanese
+  function generateJapanesePalette(count) {
+    var ranges = [
+      { h: [245, 265], L: [0.3, 0.45], c: [0.08, 0.14], weight: 2 },
+      { h: [20, 35], L: [0.55, 0.68], c: [0.15, 0.22], weight: 2 },
+      { h: [80, 95], L: [0.7, 0.8], c: [0.1, 0.16], weight: 1.5 },
+      { h: [0, 15], L: [0.45, 0.58], c: [0.12, 0.18], weight: 1.5 },
+      { h: [340, 355], L: [0.55, 0.7], c: [0.1, 0.16], weight: 1 },
+      { h: [155, 175], L: [0.45, 0.6], c: [0.06, 0.12], weight: 1 },
+      { h: [175, 195], L: [0.55, 0.7], c: [0.05, 0.1], weight: 0.8 },
+      { h: [295, 315], L: [0.55, 0.7], c: [0.08, 0.14], weight: 0.8 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var roll = Math.random();
+      if (roll < 0.15) {
+        colors.push(oklchToHex(randomInRange(0.88, 0.95), randomInRange(0.02, 0.05), randomInRange(80, 100)));
+      } else if (roll < 0.25) {
+        colors.push(oklchToHex(randomInRange(0.5, 0.62), randomInRange(0.04, 0.08), randomInRange(55, 75)));
+      } else {
+        colors.push(pickFromHueRanges(ranges, [0.45, 0.62], [0.1, 0.16]));
+      }
+    }
+    return colors;
+  }
+
+  // 27. Scandinavian
+  function generateScandinavianPalette(count) {
+    var ranges = [
+      { h: [200, 230], L: [0.7, 0.85], c: [0.03, 0.08], weight: 2 },
+      { h: [340, 365], L: [0.72, 0.86], c: [0.03, 0.07], weight: 1.5 },
+      { h: [130, 160], L: [0.68, 0.82], c: [0.03, 0.07], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      var roll = Math.random();
+      if (roll < 0.35) {
+        colors.push(oklchToHex(randomInRange(0.94, 0.99), randomInRange(0, 0.01), randomInRange(0, 360)));
+      } else if (roll < 0.55) {
+        colors.push(oklchToHex(randomInRange(0.78, 0.88), randomInRange(0, 0.02), randomInRange(80, 110)));
+      } else if (roll < 0.75) {
+        colors.push(pickFromHueRanges(ranges, [0.72, 0.85], [0.03, 0.07]));
+      } else {
+        colors.push(oklchToHex(randomInRange(0.6, 0.72), randomInRange(0.04, 0.08), randomInRange(60, 85)));
+      }
+    }
+    return colors;
+  }
+
+  // 28. Mexican
+  function generateMexicanPalette(count) {
+    var ranges = [
+      { h: [340, 360], L: [0.6, 0.75], c: [0.2, 0.3], weight: 3 },
+      { h: [30, 50], L: [0.65, 0.78], c: [0.18, 0.25], weight: 2.5 },
+      { h: [175, 200], L: [0.55, 0.72], c: [0.1, 0.18], weight: 2 },
+      { h: [80, 100], L: [0.7, 0.82], c: [0.15, 0.22], weight: 2 },
+      { h: [290, 320], L: [0.45, 0.62], c: [0.12, 0.2], weight: 1.5 }
+    ];
+    var colors = [];
+    for (var i = 0; i < count; i++) {
+      colors.push(pickFromHueRanges(ranges, [0.58, 0.72], [0.15, 0.24]));
+    }
+    return colors;
+  }
+
+  // ===== MAIN DISPATCHER =====
+
+  function generatePalette(count, strategy) {
+    switch (strategy) {
+      case "true-random": return generateTrueRandomPalette(count);
+      case "random-cohesive": return generateRandomCohesivePalette(count);
+      case "analogous": return generateAnalogousPalette(count);
+      case "complementary": return generateComplementaryPalette(count);
+      case "triadic": return generateTriadicPalette(count);
+      case "split-complementary": return generateSplitComplementaryPalette(count);
+      case "tetradic": return generateTetradicPalette(count);
+      case "monochromatic": return generateMonochromaticPalette(count);
+      case "thermos": return generateThermosPalette(count);
+      case "specimen": return generateSpecimenPalette(count);
+      case "souvenir": return generateSouvenirPalette(count);
+      case "curfew": return generateCurfewPalette(count);
+      case "telegraph": return generateTelegraphPalette(count);
+      case "70s": return generate70sPalette(count);
+      case "80s": return generate80sPalette(count);
+      case "90s": return generate90sPalette(count);
+      case "y2k": return generateY2KPalette(count);
+      case "ocean-sunset": return generateOceanSunsetPalette(count);
+      case "forest-morning": return generateForestMorningPalette(count);
+      case "desert-dusk": return generateDesertDuskPalette(count);
+      case "arctic": return generateArcticPalette(count);
+      case "volcanic": return generateVolcanicPalette(count);
+      case "meadow": return generateMeadowPalette(count);
+      case "bauhaus": return generateBauhausPalette(count);
+      case "art-deco": return generateArtDecoPalette(count);
+      case "japanese": return generateJapanesePalette(count);
+      case "scandinavian": return generateScandinavianPalette(count);
+      case "mexican": return generateMexicanPalette(count);
+      default: return generateRandomCohesivePalette(count);
+    }
+  }
+
+  // ===== UI STATE =====
+
+  var currentCategory = 'all';
+  var lockedColors = {};
+  var currentPalette = [];
+
+  // ===== DOM REFS =====
+
+  var categoryFilters = document.getElementById('categoryFilters');
+  var strategySelect = document.getElementById('strategySelect');
+  var strategyDesc = document.getElementById('strategyDesc');
+  var colorCount = document.getElementById('colorCount');
+  var generateBtn = document.getElementById('generateBtn');
+  var paletteRow = document.getElementById('paletteRow');
+  var copyAllBtn = document.getElementById('copyAllBtn');
+  var exportCssBtn = document.getElementById('exportCssBtn');
+  var toastEl = document.getElementById('toast');
+
+  // ===== TOAST =====
+
+  var toastTimeout = null;
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(function() { toastEl.classList.remove('show'); }, 2000);
+  }
+
+  // ===== POPULATE STRATEGY DROPDOWN =====
+
+  function populateStrategies() {
+    var keys = Object.keys(STRATEGY_INFO);
+    strategySelect.innerHTML = '';
+
+    keys.forEach(function(key) {
+      var info = STRATEGY_INFO[key];
+      if (currentCategory === 'all' || info.category === currentCategory) {
+        var opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = info.name + ' — ' + info.description;
+        strategySelect.appendChild(opt);
+      }
+    });
+
+    updateStrategyDesc();
+  }
+
+  function updateStrategyDesc() {
+    var key = strategySelect.value;
+    if (key && STRATEGY_INFO[key]) {
+      strategyDesc.textContent = STRATEGY_INFO[key].description;
+    } else {
+      strategyDesc.textContent = '';
+    }
+  }
+
+  // ===== CATEGORY FILTER BUTTONS =====
+
+  categoryFilters.addEventListener('click', function(e) {
+    var btn = e.target.closest('.cat-btn');
+    if (!btn) return;
+    var category = btn.getAttribute('data-category');
+    currentCategory = category;
+
+    var btns = categoryFilters.querySelectorAll('.cat-btn');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+
+    populateStrategies();
+  });
+
+  strategySelect.addEventListener('change', function() {
+    updateStrategyDesc();
+  });
+
+  // ===== SVG ICONS =====
+
+  var lockOpenSvg = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="9" height="5.5"/><path d="M4.5 7V4.5C4.5 3 5.8 1.5 7 1.5C8.2 1.5 9.5 3 9.5 4.5"/></svg>';
+  var lockClosedSvg = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="9" height="5.5"/><path d="M4.5 7V4.5C4.5 3 5.8 1.5 7 1.5C8.2 1.5 9.5 3 9.5 4.5V7"/></svg>';
+  var copySvg = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="8" height="8"/><path d="M10 4V2H2V10H4"/></svg>';
+
+  // ===== RENDER PALETTE =====
+
+  function renderPalette() {
+    paletteRow.innerHTML = '';
+    currentPalette.forEach(function(hex, idx) {
+      var textCol = getTextColor(hex);
+      var isLocked = lockedColors.hasOwnProperty(idx);
+
+      var swatch = document.createElement('div');
+      swatch.className = 'palette-swatch';
+
+      var colorDiv = document.createElement('div');
+      colorDiv.className = 'palette-swatch-color';
+      colorDiv.style.backgroundColor = hex;
+
+      var actions = document.createElement('div');
+      actions.className = 'swatch-actions';
+
+      // Lock button
+      var lockBtn = document.createElement('button');
+      lockBtn.className = 'swatch-action-btn' + (isLocked ? ' locked' : '');
+      lockBtn.innerHTML = isLocked ? lockClosedSvg : lockOpenSvg;
+      lockBtn.style.color = textCol;
+      lockBtn.style.borderColor = textCol === '#ffffff' ? 'rgba(255,255,255,0.4)' : 'rgba(26,45,20,0.3)';
+      lockBtn.title = isLocked ? 'Unlock' : 'Lock';
+      lockBtn.setAttribute('data-index', idx);
+      lockBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var i = parseInt(this.getAttribute('data-index'));
+        if (lockedColors.hasOwnProperty(i)) {
+          delete lockedColors[i];
+        } else {
+          lockedColors[i] = currentPalette[i];
+        }
+        renderPalette();
+      });
+
+      // Copy button
+      var copyBtn = document.createElement('button');
+      copyBtn.className = 'swatch-action-btn';
+      copyBtn.innerHTML = copySvg;
+      copyBtn.style.color = textCol;
+      copyBtn.style.borderColor = textCol === '#ffffff' ? 'rgba(255,255,255,0.4)' : 'rgba(26,45,20,0.3)';
+      copyBtn.title = 'Copy hex';
+      copyBtn.setAttribute('data-hex', hex);
+      copyBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var h = this.getAttribute('data-hex');
+        navigator.clipboard.writeText(h).then(function() {
+          showToast('Copied ' + h);
+        });
+      });
+
+      actions.appendChild(lockBtn);
+      actions.appendChild(copyBtn);
+      colorDiv.appendChild(actions);
+
+      var infoDiv = document.createElement('div');
+      infoDiv.className = 'palette-swatch-info';
+      var hexSpan = document.createElement('span');
+      hexSpan.className = 'palette-swatch-hex';
+      hexSpan.textContent = hex.toUpperCase();
+      infoDiv.appendChild(hexSpan);
+
+      swatch.appendChild(colorDiv);
+      swatch.appendChild(infoDiv);
+      paletteRow.appendChild(swatch);
+    });
+  }
+
+  // ===== GENERATE =====
+
+  function doGenerate() {
+    var count = parseInt(colorCount.value) || 5;
+    count = Math.max(2, Math.min(11, count));
+    colorCount.value = count;
+
+    var strategy = strategySelect.value;
+    var newColors = generatePalette(count, strategy);
+
+    // Preserve locked colors
+    var result = [];
+    for (var i = 0; i < count; i++) {
+      if (lockedColors.hasOwnProperty(i)) {
+        result.push(lockedColors[i]);
+      } else {
+        result.push(newColors[i]);
+      }
+    }
+
+    // Clean up locked indices that exceed new count
+    var keysToRemove = [];
+    for (var k in lockedColors) {
+      if (lockedColors.hasOwnProperty(k) && parseInt(k) >= count) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach(function(k) { delete lockedColors[k]; });
+
+    currentPalette = result;
+    renderPalette();
+  }
+
+  // ===== EVENT HANDLERS =====
+
+  generateBtn.addEventListener('click', function() {
+    doGenerate();
+  });
+
+  // Spacebar to regenerate
+  document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space' || e.key === ' ') {
+      var tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) {
+        return;
+      }
+      e.preventDefault();
+      doGenerate();
+    }
+  });
+
+  // Copy All
+  copyAllBtn.addEventListener('click', function() {
+    var hexes = currentPalette.map(function(h) { return h.toUpperCase(); }).join(', ');
+    navigator.clipboard.writeText(hexes).then(function() {
+      showToast('Copied all colors');
+    });
+  });
+
+  // Export CSS
+  exportCssBtn.addEventListener('click', function() {
+    var lines = [':root {'];
+    currentPalette.forEach(function(hex, i) {
+      lines.push('  --color-' + (i + 1) + ': ' + hex + ';');
+    });
+    lines.push('}');
+    var css = lines.join('\n');
+    navigator.clipboard.writeText(css).then(function() {
+      showToast('Copied CSS variables');
+    });
+  });
+
+  // ===== INIT =====
+
+  populateStrategies();
+  doGenerate();
+
+})();
+</script>
+
+<!-- Paper texture animation script -->
+<script src="paper-texture.js"></script>
+<!-- Floating depth icons -->
+<script src="floating-icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

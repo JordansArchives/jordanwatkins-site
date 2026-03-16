@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contrast Checker — Jordan's Archives</title>
+<meta name="description" content="Check WCAG contrast ratios between foreground and background colors. AA and AAA compliance badges. Free tool, no signup required.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+
+<!-- Styles -->
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="tools-page.css">
+
+<!-- Favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='24' font-size='24' fill='%231a2d14'>J</text></svg>" type="image/svg+xml">
+</head>
+<body>
+
+<!-- Animated paper texture background -->
+<canvas id="paperTexture" class="paper-texture"></canvas>
+
+<!-- Floating depth icons -->
+<div class="floating-icons-layer" id="floatingIcons"></div>
+
+<div class="tools-layout">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <!-- ========== SIDEBAR TEMPLATE ========== -->
+<!-- This exact sidebar must be used in ALL tool pages -->
+<!-- The page for the current tool should have class="active" on its sidebar-link -->
+
+<!-- ========== SIDEBAR TEMPLATE ========== -->
+<!-- This exact sidebar must be used in ALL tool pages -->
+<!-- The page for the current tool should have class="active" on its sidebar-link -->
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" class="sidebar-logo-link">
+        <img src="icon-logo.png" alt="Jordan's Archives" class="sidebar-logo-icon">
+      </a>
+    </div>
+    <nav class="sidebar-nav" aria-label="Tool categories">
+      <a href="index.html" class="sidebar-link sidebar-home" data-tooltip="Home">
+        <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10L10 3L17 10"/><path d="M5 8.5V16.5H8.5V12H11.5V16.5H15V8.5"/></svg>
+        <span class="sidebar-link-text">Home</span>
+      </a>
+
+      <!-- MOST USED -->
+      <div class="sidebar-section sidebar-section-red">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text sidebar-title-red">Most Used</span></div>
+        <a href="tool-partnerships-calculator.html" class="sidebar-link" data-tooltip="Partnerships Calculator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L10 18"/><path d="M13.5 5.5C13.5 4 12 3 10 3C8 3 6.5 4 6.5 5.5C6.5 7 8 8 10 8C12 8 13.5 9 13.5 10.5C13.5 12 12 13 10 13C8 13 6.5 12 6.5 10.5"/></svg>
+          <span class="sidebar-link-text">Partnerships Calculator</span>
+        </a>
+        <a href="tool-palette-generator.html" class="sidebar-link" data-tooltip="Palette Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+          <span class="sidebar-link-text">Palette Generator</span>
+        </a>
+        <a href="tool-qr-generator.html" class="sidebar-link" data-tooltip="QR Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="14" y="14" width="4" height="4"/><path d="M12 12L12 14"/><path d="M14 12L18 12"/></svg>
+          <span class="sidebar-link-text">QR Generator</span>
+        </a>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Content</span></div>
+        <a href="tool-cvg.html" class="sidebar-link" data-tooltip="Content Value Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2C6.5 2 4 5 4 8C4 10.5 5.5 12.5 7.5 13.5L7.5 15.5C7.5 16.5 8.5 17.5 10 17.5C11.5 17.5 12.5 16.5 12.5 15.5L12.5 13.5C14.5 12.5 16 10.5 16 8C16 5 13.5 2 10 2Z"/><path d="M8 15L12 15"/><path d="M8.5 17L11.5 17"/></svg>
+          <span class="sidebar-link-text">Content Value Generator</span>
+        </a>
+        <a href="tool-content-plan.html" class="sidebar-link" data-tooltip="Content Plan Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="15" height="13.5"/><path d="M2.5 8.5L17.5 8.5"/><path d="M6.5 2L6.5 5.5"/><path d="M13.5 2L13.5 5.5"/><circle cx="7" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="10" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="13" cy="12" r="0.8" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Content Plan Generator</span>
+        </a>
+      </div>
+
+      <!-- BRANDING & DESIGN -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Branding &amp; Design</span></div>
+        <a href="tool-typeface-picker.html" class="sidebar-link" data-tooltip="Brand Typeface Picker">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5L10 5L16 5"/><path d="M10 5L10 17"/><path d="M7 17L13 17"/><path d="M2 4C2 3.5 3 2.5 4 2.5L16 2.5C17 2.5 18 3.5 18 4"/></svg>
+          <span class="sidebar-link-text">Brand Typeface Picker</span>
+        </a>
+        <a href="tool-visual-identity-formula.html" class="sidebar-link" data-tooltip="Visual Identity Formula">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14"/><path d="M7 3L7 17"/><path d="M3 8L17 8"/><circle cx="12" cy="12.5" r="2.5"/></svg>
+          <span class="sidebar-link-text">Visual Identity Formula</span>
+        </a>
+        <a href="tool-palette-generator.html" class="sidebar-link" data-tooltip="Palette Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+          <span class="sidebar-link-text">Palette Generator</span>
+        </a>
+        <a href="tool-palette-collection.html" class="sidebar-link" data-tooltip="Palette Collection">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="4" rx="1"/><rect x="2" y="8" width="16" height="4" rx="1"/><rect x="2" y="13" width="16" height="4" rx="1"/></svg>
+          <span class="sidebar-link-text">Palette Collection</span>
+        </a>
+        <a href="tool-contrast-checker.html" class="sidebar-link active" data-tooltip="Contrast Checker">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><path d="M10 2L10 18" stroke="none"/><path d="M10 2A8 8 0 0 1 10 18Z" fill="currentColor"/></svg>
+          <span class="sidebar-link-text">Contrast Checker</span>
+        </a>
+        <a href="tool-color-converter.html" class="sidebar-link" data-tooltip="Color Converter">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14L6.5 3L11 14"/><path d="M3.5 11L9.5 11"/><path d="M14 8L14 16"/><path d="M11 12.5L17 12.5"/></svg>
+          <span class="sidebar-link-text">Color Converter</span>
+        </a>
+        <a href="tool-glyph-browser.html" class="sidebar-link" data-tooltip="Glyph Browser">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4L8 16"/><path d="M12 4C12 4 16 4 16 8C16 12 12 12 12 12"/><circle cx="14" cy="15" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Glyph Browser</span>
+        </a>
+      </div>
+
+      <!-- IMAGE & ASSETS -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Image &amp; Assets</span></div>
+        <a href="tool-background-remover.html" class="sidebar-link" data-tooltip="Background Remover">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="16" height="16" rx="2"/><path d="M2 14L7 9L11 13"/><path d="M12 11L15 8L18 11"/><circle cx="13.5" cy="6" r="1.5"/></svg>
+          <span class="sidebar-link-text">Background Remover</span>
+        </a>
+        <a href="tool-svg-optimizer.html" class="sidebar-link" data-tooltip="SVG Optimizer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3L17 3L17 17L3 17Z"/><path d="M7 7L10 13L13 7"/></svg>
+          <span class="sidebar-link-text">SVG Optimizer</span>
+        </a>
+        <a href="tool-image-converter.html" class="sidebar-link" data-tooltip="Image Converter">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="10" height="12" rx="1"/><path d="M14 7L18 7L18 17L8 17"/><path d="M5 10L8 7.5L11 10"/></svg>
+          <span class="sidebar-link-text">Image Converter</span>
+        </a>
+        <a href="tool-image-tracer.html" class="sidebar-link" data-tooltip="Image Tracer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L8 4L13 13L17 6"/><circle cx="3" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Image Tracer</span>
+        </a>
+        <a href="tool-qr-generator.html" class="sidebar-link" data-tooltip="QR Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="14" y="14" width="4" height="4"/><path d="M12 12L12 14"/><path d="M14 12L18 12"/></svg>
+          <span class="sidebar-link-text">QR Generator</span>
+        </a>
+      </div>
+
+      <!-- SOCIAL MEDIA -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Social Media</span></div>
+        <a href="tool-bio-optimizer.html" class="sidebar-link" data-tooltip="Bio Optimizer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5C4 3.5 5 2.5 6 2.5L14 2.5C15 2.5 16 3.5 16 4.5L16 13C16 14 15 15 14 15L10 15L6.5 18L7 15L6 15C5 15 4 14 4 13Z"/><path d="M7 7L13 7"/><path d="M7 10L11 10"/></svg>
+          <span class="sidebar-link-text">Bio Optimizer</span>
+        </a>
+        <a href="tool-partnerships-calculator.html" class="sidebar-link" data-tooltip="Partnerships Calculator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L10 18"/><path d="M13.5 5.5C13.5 4 12 3 10 3C8 3 6.5 4 6.5 5.5C6.5 7 8 8 10 8C12 8 13.5 9 13.5 10.5C13.5 12 12 13 10 13C8 13 6.5 12 6.5 10.5"/></svg>
+          <span class="sidebar-link-text">Partnerships Calculator</span>
+        </a>
+      </div>
+
+      <!-- PRINT & PRODUCTION -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Print &amp; Production</span></div>
+        <a href="tool-pdf-preflight.html" class="sidebar-link" data-tooltip="PDF Preflight">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2L12 2L16 6L16 18L4 18Z"/><path d="M12 2L12 6L16 6"/><path d="M7 11L9 13L13 9"/></svg>
+          <span class="sidebar-link-text">PDF Preflight</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <p class="sidebar-footer-msg">No signup. No tracking.<br>Just tools.</p>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <!-- Mobile hamburger -->
+      <button class="topbar-toggle topbar-hamburger" id="sidebarToggle" aria-label="Open sidebar menu">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M3 5H17"/>
+          <path d="M3 10H17"/>
+          <path d="M3 15H17"/>
+        </svg>
+      </button>
+      <!-- Desktop collapse toggle (panel icon) -->
+      <button class="topbar-toggle topbar-collapse-btn" id="sidebarCollapseToggle" aria-label="Toggle sidebar collapse">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="16" height="14"/>
+          <path d="M8 3L8 17"/>
+        </svg>
+      </button>
+      <div class="breadcrumb">
+        <a href="index.html">jordan's archives</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="tools.html">free tools</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>Contrast Checker</span>
+      </div>
+    </div>
+
+    <!-- Tool Page Header -->
+    <div class="tool-page-header">
+      <div class="tool-page-header-inner">
+        <div class="tool-page-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="10" r="8"/>
+            <path d="M10 2L10 18" stroke="none"/>
+            <path d="M10 2A8 8 0 0 1 10 18Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="tool-page-info">
+          <span class="tool-page-badge">Branding &amp; Design</span>
+          <h1 class="tool-page-title">Contrast Checker</h1>
+          <p class="tool-page-desc">Check WCAG contrast ratios between foreground and background colors.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Embedded Tool -->
+    <div class="tool-embed">
+
+      <!-- Color Inputs -->
+      <div class="tool-section">
+        <div class="tool-form-group">
+          <label class="tool-label" for="bgHex">Background Color</label>
+          <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <input type="color" id="bgPicker" value="#1a1a2e" style="width: 48px; height: 40px; border: none; border-radius: 6px; cursor: pointer; padding: 0; background: none;">
+            <input type="text" class="tool-input" id="bgHex" value="#1a1a2e" maxlength="7" style="flex: 1; font-family: monospace; font-size: 1rem;" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="tool-form-group">
+          <label class="tool-label" for="fgHex">Foreground Color</label>
+          <div style="display: flex; align-items: center; gap: var(--space-3);">
+            <input type="color" id="fgPicker" value="#eaeaea" style="width: 48px; height: 40px; border: none; border-radius: 6px; cursor: pointer; padding: 0; background: none;">
+            <input type="text" class="tool-input" id="fgHex" value="#eaeaea" maxlength="7" style="flex: 1; font-family: monospace; font-size: 1rem;" spellcheck="false">
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="tool-form-group" style="display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3);">
+          <button class="tool-btn tool-btn-sm" id="btnFlip" type="button">Flip Colors</button>
+          <button class="tool-btn tool-btn-sm tool-btn-accent" id="btnFixAA" type="button">Fix to AA</button>
+          <button class="tool-btn tool-btn-sm tool-btn-accent" id="btnFixAAA" type="button">Fix to AAA</button>
+        </div>
+      </div>
+
+      <!-- Live Preview -->
+      <div class="tool-section">
+        <label class="tool-label">Live Preview</label>
+        <div id="previewPanel" style="border-radius: 10px; padding: var(--space-5); margin-top: var(--space-2); border: 1px solid rgba(0,0,0,0.08);">
+          <p id="previewLarge" style="font-size: 24px; font-weight: 700; margin: 0 0 12px 0; line-height: 1.3;">Large text preview (24px bold)</p>
+          <p id="previewNormal" style="font-size: 16px; font-weight: 400; margin: 0 0 10px 0; line-height: 1.5;">Normal body text preview at 16px. This is how your paragraph text will look with these color choices.</p>
+          <p id="previewSmall" style="font-size: 14px; font-weight: 400; margin: 0; line-height: 1.5;">Small text preview at 14px. Fine print and captions use this size.</p>
+        </div>
+      </div>
+
+      <!-- Contrast Ratio Display -->
+      <div class="tool-section" style="text-align: center;">
+        <div style="margin-bottom: var(--space-2);">
+          <span id="ratioValue" style="font-family: 'Instrument Serif', serif; font-size: 3.5rem; font-weight: 700; line-height: 1.1; display: block;">12.45:1</span>
+          <span id="ratingText" style="font-size: 1rem; font-weight: 500; display: block; margin-top: var(--space-1); opacity: 0.7;">Excellent</span>
+        </div>
+      </div>
+
+      <!-- WCAG Compliance Badges -->
+      <div class="tool-section">
+        <label class="tool-label" style="margin-bottom: var(--space-3); display: block;">WCAG 2.1 Compliance</label>
+        <div id="badgesGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+
+          <div class="cc-badge" id="badgeAANormal" style="border-radius: 10px; padding: var(--space-4); text-align: center;">
+            <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">AA Normal</div>
+            <div style="font-size: 0.78rem; opacity: 0.8; margin-bottom: 8px;">Requires 4.5:1</div>
+            <div class="cc-badge-icon" style="font-size: 1.4rem; font-weight: 700;"></div>
+          </div>
+
+          <div class="cc-badge" id="badgeAALarge" style="border-radius: 10px; padding: var(--space-4); text-align: center;">
+            <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">AA Large</div>
+            <div style="font-size: 0.78rem; opacity: 0.8; margin-bottom: 8px;">Requires 3:1</div>
+            <div class="cc-badge-icon" style="font-size: 1.4rem; font-weight: 700;"></div>
+          </div>
+
+          <div class="cc-badge" id="badgeAAANormal" style="border-radius: 10px; padding: var(--space-4); text-align: center;">
+            <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">AAA Normal</div>
+            <div style="font-size: 0.78rem; opacity: 0.8; margin-bottom: 8px;">Requires 7:1</div>
+            <div class="cc-badge-icon" style="font-size: 1.4rem; font-weight: 700;"></div>
+          </div>
+
+          <div class="cc-badge" id="badgeAAALarge" style="border-radius: 10px; padding: var(--space-4); text-align: center;">
+            <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 4px;">AAA Large</div>
+            <div style="font-size: 0.78rem; opacity: 0.8; margin-bottom: 8px;">Requires 4.5:1</div>
+            <div class="cc-badge-icon" style="font-size: 1.4rem; font-weight: 700;"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Info Section -->
+      <div class="tool-section" style="opacity: 0.75; font-size: 0.88rem; line-height: 1.65;">
+        <label class="tool-label" style="margin-bottom: var(--space-2); display: block;">About WCAG Contrast</label>
+        <p style="margin: 0 0 var(--space-3) 0;"><strong>WCAG 2.1</strong> (Web Content Accessibility Guidelines) defines minimum contrast ratios to ensure text is readable for people with visual impairments, including color vision deficiencies.</p>
+        <p style="margin: 0 0 var(--space-3) 0;"><strong>AA Normal (4.5:1)</strong> &mdash; Minimum for body text under 18pt (or 14pt bold). Required for most web content.</p>
+        <p style="margin: 0 0 var(--space-3) 0;"><strong>AA Large (3:1)</strong> &mdash; Minimum for large text: 18pt+ regular weight, or 14pt+ bold.</p>
+        <p style="margin: 0 0 var(--space-3) 0;"><strong>AAA Normal (7:1)</strong> &mdash; Enhanced contrast for body text. Recommended for long-form reading.</p>
+        <p style="margin: 0;"><strong>AAA Large (4.5:1)</strong> &mdash; Enhanced contrast for large text. The highest accessibility standard.</p>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="tools-footer">
+      <span>jordan's archives</span>
+      <div>
+        <a href="index.html">home</a>
+        <span style="margin: 0 0.5rem; opacity: 0.3;">&middot;</span>
+        <a href="about.html">about</a>
+        <span style="margin: 0 0.5rem; opacity: 0.3;">&middot;</span>
+        <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+      </div>
+    </footer>
+
+  </main>
+
+</div>
+
+<!-- Contrast Checker Tool Script -->
+<script>
+(function() {
+  'use strict';
+
+  /* ========== Constants ========== */
+  var AA_NORMAL = 4.5;
+  var AA_LARGE = 3;
+  var AAA_NORMAL = 7;
+  var AAA_LARGE = 4.5;
+
+  /* ========== DOM References ========== */
+  var bgPicker = document.getElementById('bgPicker');
+  var bgHex = document.getElementById('bgHex');
+  var fgPicker = document.getElementById('fgPicker');
+  var fgHex = document.getElementById('fgHex');
+  var btnFlip = document.getElementById('btnFlip');
+  var btnFixAA = document.getElementById('btnFixAA');
+  var btnFixAAA = document.getElementById('btnFixAAA');
+  var previewPanel = document.getElementById('previewPanel');
+  var previewLarge = document.getElementById('previewLarge');
+  var previewNormal = document.getElementById('previewNormal');
+  var previewSmall = document.getElementById('previewSmall');
+  var ratioValue = document.getElementById('ratioValue');
+  var ratingText = document.getElementById('ratingText');
+  var badgeAANormal = document.getElementById('badgeAANormal');
+  var badgeAALarge = document.getElementById('badgeAALarge');
+  var badgeAAANormal = document.getElementById('badgeAAANormal');
+  var badgeAAALarge = document.getElementById('badgeAAALarge');
+
+  /* ========== Color Utilities ========== */
+
+  function hexToRgb(hex) {
+    if (!hex) return null;
+    hex = hex.replace(/^#/, '');
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) return null;
+    var r = parseInt(hex.substring(0, 2), 16);
+    var g = parseInt(hex.substring(2, 4), 16);
+    var b = parseInt(hex.substring(4, 6), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return null;
+    return [r, g, b];
+  }
+
+  function rgbToHex(r, g, b) {
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
+  function getLuminance(r, g, b) {
+    var rs = r / 255;
+    var gs = g / 255;
+    var bs = b / 255;
+    var rLinear = rs <= 0.03928 ? rs / 12.92 : Math.pow((rs + 0.055) / 1.055, 2.4);
+    var gLinear = gs <= 0.03928 ? gs / 12.92 : Math.pow((gs + 0.055) / 1.055, 2.4);
+    var bLinear = bs <= 0.03928 ? bs / 12.92 : Math.pow((bs + 0.055) / 1.055, 2.4);
+    return 0.2126 * rLinear + 0.7152 * gLinear + 0.0722 * bLinear;
+  }
+
+  function getContrastRatio(hex1, hex2) {
+    var rgb1 = hexToRgb(hex1);
+    var rgb2 = hexToRgb(hex2);
+    if (!rgb1 || !rgb2) return 1;
+    var lum1 = getLuminance(rgb1[0], rgb1[1], rgb1[2]);
+    var lum2 = getLuminance(rgb2[0], rgb2[1], rgb2[2]);
+    var lighter = Math.max(lum1, lum2);
+    var darker = Math.min(lum1, lum2);
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+
+  function rgbToHsl(r, g, b) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
+    var h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0;
+    } else {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+    return [h, s, l];
+  }
+
+  function hslToRgb(h, s, l) {
+    var r, g, b;
+    if (s === 0) {
+      r = g = b = l;
+    } else {
+      function hue2rgb(p, q, t) {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      }
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      var p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1 / 3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1 / 3);
+    }
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  }
+
+  function checkCompliance(ratio) {
+    return {
+      aaNormal: ratio >= AA_NORMAL,
+      aaLarge: ratio >= AA_LARGE,
+      aaaNormal: ratio >= AAA_NORMAL,
+      aaaLarge: ratio >= AAA_LARGE
+    };
+  }
+
+  function fixContrast(colorToFix, referenceColor, targetRatio) {
+    var refRgb = hexToRgb(referenceColor);
+    var fixRgb = hexToRgb(colorToFix);
+    if (!refRgb || !fixRgb) return colorToFix;
+
+    var refLum = getLuminance(refRgb[0], refRgb[1], refRgb[2]);
+    var hsl = rgbToHsl(fixRgb[0], fixRgb[1], fixRgb[2]);
+    var h = hsl[0];
+    var s = hsl[1];
+
+    /* Try making the color lighter first */
+    var targetLumLight = targetRatio * (refLum + 0.05) - 0.05;
+    /* Try making the color darker */
+    var targetLumDark = (refLum + 0.05) / targetRatio - 0.05;
+
+    /* Binary search for lightness that achieves target luminance */
+    function findLightness(targetLum) {
+      if (targetLum < 0 || targetLum > 1) return -1;
+      var low = 0;
+      var high = 1;
+      var mid, rgb, lum;
+      for (var i = 0; i < 50; i++) {
+        mid = (low + high) / 2;
+        rgb = hslToRgb(h, s, mid);
+        lum = getLuminance(rgb[0], rgb[1], rgb[2]);
+        if (Math.abs(lum - targetLum) < 0.001) return mid;
+        if (lum < targetLum) {
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+      return mid;
+    }
+
+    /* Determine which direction produces a valid result */
+    var lightnessLight = findLightness(targetLumLight);
+    var lightnessDark = findLightness(targetLumDark);
+
+    var currentL = hsl[2];
+    var bestL = -1;
+
+    /* Pick the option closest to the original lightness */
+    if (lightnessLight >= 0 && lightnessLight <= 1 && lightnessDark >= 0 && lightnessDark <= 1) {
+      bestL = Math.abs(lightnessLight - currentL) <= Math.abs(lightnessDark - currentL) ? lightnessLight : lightnessDark;
+    } else if (lightnessLight >= 0 && lightnessLight <= 1) {
+      bestL = lightnessLight;
+    } else if (lightnessDark >= 0 && lightnessDark <= 1) {
+      bestL = lightnessDark;
+    }
+
+    if (bestL < 0) {
+      /* Fallback: if reference is dark, go white; if light, go black */
+      return refLum > 0.5 ? '#000000' : '#ffffff';
+    }
+
+    var result = hslToRgb(h, s, bestL);
+    return rgbToHex(result[0], result[1], result[2]);
+  }
+
+  /* ========== UI Update ========== */
+
+  function updateBadge(el, pass) {
+    var icon = el.querySelector('.cc-badge-icon');
+    if (pass) {
+      el.style.background = '#16a34a';
+      el.style.color = '#ffffff';
+      icon.textContent = '\u2713 Pass';
+    } else {
+      el.style.background = '#dc2626';
+      el.style.color = '#ffffff';
+      icon.textContent = '\u2717 Fail';
+    }
+  }
+
+  function getRatingText(ratio) {
+    if (ratio >= 7) return 'Excellent';
+    if (ratio >= 4.5) return 'Good';
+    if (ratio >= 3) return 'Acceptable for large text';
+    return 'Poor';
+  }
+
+  function update() {
+    var bg = bgHex.value.trim();
+    var fg = fgHex.value.trim();
+
+    /* Validate hex inputs */
+    if (!hexToRgb(bg) || !hexToRgb(fg)) return;
+
+    /* Normalize to full 7-char hex */
+    var bgRgb = hexToRgb(bg);
+    var fgRgb = hexToRgb(fg);
+    var bgNorm = rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]);
+    var fgNorm = rgbToHex(fgRgb[0], fgRgb[1], fgRgb[2]);
+
+    /* Sync pickers */
+    bgPicker.value = bgNorm;
+    fgPicker.value = fgNorm;
+
+    /* Update preview */
+    previewPanel.style.backgroundColor = bgNorm;
+    previewLarge.style.color = fgNorm;
+    previewNormal.style.color = fgNorm;
+    previewSmall.style.color = fgNorm;
+
+    /* Calculate ratio */
+    var ratio = getContrastRatio(bgNorm, fgNorm);
+    var ratioRounded = Math.round(ratio * 100) / 100;
+    ratioValue.textContent = ratioRounded.toFixed(2) + ':1';
+    ratingText.textContent = getRatingText(ratio);
+
+    /* Compliance */
+    var compliance = checkCompliance(ratio);
+    updateBadge(badgeAANormal, compliance.aaNormal);
+    updateBadge(badgeAALarge, compliance.aaLarge);
+    updateBadge(badgeAAANormal, compliance.aaaNormal);
+    updateBadge(badgeAAALarge, compliance.aaaLarge);
+
+    /* Fix buttons state */
+    btnFixAA.disabled = compliance.aaNormal;
+    btnFixAAA.disabled = compliance.aaaNormal;
+    btnFixAA.style.opacity = compliance.aaNormal ? '0.4' : '1';
+    btnFixAAA.style.opacity = compliance.aaaNormal ? '0.4' : '1';
+    btnFixAA.style.cursor = compliance.aaNormal ? 'not-allowed' : 'pointer';
+    btnFixAAA.style.cursor = compliance.aaaNormal ? 'not-allowed' : 'pointer';
+  }
+
+  /* ========== Event Listeners ========== */
+
+  bgPicker.addEventListener('input', function() {
+    bgHex.value = bgPicker.value;
+    update();
+  });
+
+  fgPicker.addEventListener('input', function() {
+    fgHex.value = fgPicker.value;
+    update();
+  });
+
+  bgHex.addEventListener('input', function() {
+    var val = bgHex.value.trim();
+    if (val.length > 0 && val[0] !== '#') {
+      val = '#' + val;
+      bgHex.value = val;
+    }
+    if (hexToRgb(val)) {
+      update();
+    }
+  });
+
+  fgHex.addEventListener('input', function() {
+    var val = fgHex.value.trim();
+    if (val.length > 0 && val[0] !== '#') {
+      val = '#' + val;
+      fgHex.value = val;
+    }
+    if (hexToRgb(val)) {
+      update();
+    }
+  });
+
+  btnFlip.addEventListener('click', function() {
+    var tmpBg = bgHex.value;
+    bgHex.value = fgHex.value;
+    fgHex.value = tmpBg;
+    update();
+  });
+
+  btnFixAA.addEventListener('click', function() {
+    if (btnFixAA.disabled) return;
+    var fixed = fixContrast(fgHex.value.trim(), bgHex.value.trim(), AA_NORMAL);
+    fgHex.value = fixed;
+    fgPicker.value = fixed;
+    update();
+  });
+
+  btnFixAAA.addEventListener('click', function() {
+    if (btnFixAAA.disabled) return;
+    var fixed = fixContrast(fgHex.value.trim(), bgHex.value.trim(), AAA_NORMAL);
+    fgHex.value = fixed;
+    fgPicker.value = fixed;
+    update();
+  });
+
+  /* ========== Initial render ========== */
+  update();
+
+})();
+</script>
+
+<!-- Paper texture animation script -->
+<script src="paper-texture.js"></script>
+<!-- Floating depth icons -->
+<script src="floating-icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

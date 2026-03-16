@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glyph Browser — Jordan's Archives</title>
+<meta name="description" content="Browse Unicode glyphs by category, search by character or hex code, and copy in multiple formats. Free tool, no signup required.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+
+<!-- Styles -->
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="tools-page.css">
+
+<!-- Favicon -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='24' font-size='24' fill='%231a2d14'>J</text></svg>" type="image/svg+xml">
+
+<style>
+.glyph-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+@media (min-width: 640px) {
+  .glyph-controls { flex-direction: row; }
+}
+.glyph-search-wrap {
+  position: relative;
+  flex: 1;
+}
+.glyph-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+.glyph-search {
+  width: 100%;
+  padding-left: 2.25rem;
+}
+.glyph-category-select {
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  min-width: 180px;
+}
+.glyph-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+.glyph-header-label {
+  font-weight: 700;
+  color: var(--text);
+}
+.glyph-header-count {
+  font-size: 0.875rem;
+  color: var(--text-faint);
+}
+.glyph-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+}
+@media (min-width: 640px) {
+  .glyph-grid { grid-template-columns: repeat(12, 1fr); }
+}
+@media (min-width: 768px) {
+  .glyph-grid { grid-template-columns: repeat(16, 1fr); }
+}
+@media (min-width: 1024px) {
+  .glyph-grid { grid-template-columns: repeat(20, 1fr); }
+}
+.glyph-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  user-select: none;
+  position: relative;
+}
+.glyph-cell:hover {
+  border-color: var(--green);
+}
+.glyph-cell.active {
+  background: var(--green-dark);
+  color: var(--bg);
+  border-color: var(--green-dark);
+}
+.glyph-cell.copied {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+}
+.glyph-overflow {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-faint);
+  padding: var(--space-3) 0;
+}
+.glyph-tip {
+  padding: var(--space-4);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg-muted);
+  font-size: 0.875rem;
+  color: var(--text-faint);
+}
+.glyph-tip strong {
+  color: var(--text);
+}
+
+/* Popover */
+.glyph-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
+.glyph-popover {
+  position: absolute;
+  z-index: 100;
+  width: 240px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+.glyph-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.glyph-popover-char {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+.glyph-popover-code {
+  font-family: monospace;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+.glyph-popover-decimal {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+.glyph-popover-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 0.5rem;
+}
+.glyph-popover-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-family: var(--font-body);
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.glyph-popover-btn:hover {
+  background: var(--bg-muted);
+}
+.glyph-popover-btn.copied-btn {
+  color: #22c55e;
+}
+.glyph-popover-btn svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<!-- Animated paper texture background -->
+<canvas id="paperTexture" class="paper-texture"></canvas>
+
+<!-- Floating depth icons -->
+<div class="floating-icons-layer" id="floatingIcons"></div>
+
+<div class="tools-layout">
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <!-- ========== SIDEBAR TEMPLATE ========== -->
+<!-- This exact sidebar must be used in ALL tool pages -->
+<!-- The page for the current tool should have class="active" on its sidebar-link -->
+
+<!-- ========== SIDEBAR TEMPLATE ========== -->
+<!-- This exact sidebar must be used in ALL tool pages -->
+<!-- The page for the current tool should have class="active" on its sidebar-link -->
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <a href="index.html" class="sidebar-logo-link">
+        <img src="icon-logo.png" alt="Jordan's Archives" class="sidebar-logo-icon">
+      </a>
+    </div>
+    <nav class="sidebar-nav" aria-label="Tool categories">
+      <a href="index.html" class="sidebar-link sidebar-home" data-tooltip="Home">
+        <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10L10 3L17 10"/><path d="M5 8.5V16.5H8.5V12H11.5V16.5H15V8.5"/></svg>
+        <span class="sidebar-link-text">Home</span>
+      </a>
+
+      <!-- MOST USED -->
+      <div class="sidebar-section sidebar-section-red">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text sidebar-title-red">Most Used</span></div>
+        <a href="tool-partnerships-calculator.html" class="sidebar-link" data-tooltip="Partnerships Calculator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L10 18"/><path d="M13.5 5.5C13.5 4 12 3 10 3C8 3 6.5 4 6.5 5.5C6.5 7 8 8 10 8C12 8 13.5 9 13.5 10.5C13.5 12 12 13 10 13C8 13 6.5 12 6.5 10.5"/></svg>
+          <span class="sidebar-link-text">Partnerships Calculator</span>
+        </a>
+        <a href="tool-palette-generator.html" class="sidebar-link" data-tooltip="Palette Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+          <span class="sidebar-link-text">Palette Generator</span>
+        </a>
+        <a href="tool-qr-generator.html" class="sidebar-link" data-tooltip="QR Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="14" y="14" width="4" height="4"/><path d="M12 12L12 14"/><path d="M14 12L18 12"/></svg>
+          <span class="sidebar-link-text">QR Generator</span>
+        </a>
+      </div>
+
+      <!-- CONTENT -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Content</span></div>
+        <a href="tool-cvg.html" class="sidebar-link" data-tooltip="Content Value Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2C6.5 2 4 5 4 8C4 10.5 5.5 12.5 7.5 13.5L7.5 15.5C7.5 16.5 8.5 17.5 10 17.5C11.5 17.5 12.5 16.5 12.5 15.5L12.5 13.5C14.5 12.5 16 10.5 16 8C16 5 13.5 2 10 2Z"/><path d="M8 15L12 15"/><path d="M8.5 17L11.5 17"/></svg>
+          <span class="sidebar-link-text">Content Value Generator</span>
+        </a>
+        <a href="tool-content-plan.html" class="sidebar-link" data-tooltip="Content Plan Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="15" height="13.5"/><path d="M2.5 8.5L17.5 8.5"/><path d="M6.5 2L6.5 5.5"/><path d="M13.5 2L13.5 5.5"/><circle cx="7" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="10" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="13" cy="12" r="0.8" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Content Plan Generator</span>
+        </a>
+      </div>
+
+      <!-- BRANDING & DESIGN -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Branding &amp; Design</span></div>
+        <a href="tool-typeface-picker.html" class="sidebar-link" data-tooltip="Brand Typeface Picker">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5L10 5L16 5"/><path d="M10 5L10 17"/><path d="M7 17L13 17"/><path d="M2 4C2 3.5 3 2.5 4 2.5L16 2.5C17 2.5 18 3.5 18 4"/></svg>
+          <span class="sidebar-link-text">Brand Typeface Picker</span>
+        </a>
+        <a href="tool-visual-identity-formula.html" class="sidebar-link" data-tooltip="Visual Identity Formula">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14"/><path d="M7 3L7 17"/><path d="M3 8L17 8"/><circle cx="12" cy="12.5" r="2.5"/></svg>
+          <span class="sidebar-link-text">Visual Identity Formula</span>
+        </a>
+        <a href="tool-palette-generator.html" class="sidebar-link" data-tooltip="Palette Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><circle cx="10" cy="6" r="1.5"/><circle cx="6.5" cy="9" r="1.5"/><circle cx="8" cy="13.5" r="1.5"/><circle cx="13" cy="12" r="1.5"/></svg>
+          <span class="sidebar-link-text">Palette Generator</span>
+        </a>
+        <a href="tool-palette-collection.html" class="sidebar-link" data-tooltip="Palette Collection">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="4" rx="1"/><rect x="2" y="8" width="16" height="4" rx="1"/><rect x="2" y="13" width="16" height="4" rx="1"/></svg>
+          <span class="sidebar-link-text">Palette Collection</span>
+        </a>
+        <a href="tool-contrast-checker.html" class="sidebar-link" data-tooltip="Contrast Checker">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><path d="M10 2L10 18" stroke="none"/><path d="M10 2A8 8 0 0 1 10 18Z" fill="currentColor"/></svg>
+          <span class="sidebar-link-text">Contrast Checker</span>
+        </a>
+        <a href="tool-color-converter.html" class="sidebar-link" data-tooltip="Color Converter">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14L6.5 3L11 14"/><path d="M3.5 11L9.5 11"/><path d="M14 8L14 16"/><path d="M11 12.5L17 12.5"/></svg>
+          <span class="sidebar-link-text">Color Converter</span>
+        </a>
+        <a href="tool-glyph-browser.html" class="sidebar-link active" data-tooltip="Glyph Browser">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4L8 16"/><path d="M12 4C12 4 16 4 16 8C16 12 12 12 12 12"/><circle cx="14" cy="15" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Glyph Browser</span>
+        </a>
+      </div>
+
+      <!-- IMAGE & ASSETS -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Image &amp; Assets</span></div>
+        <a href="tool-background-remover.html" class="sidebar-link" data-tooltip="Background Remover">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="16" height="16" rx="2"/><path d="M2 14L7 9L11 13"/><path d="M12 11L15 8L18 11"/><circle cx="13.5" cy="6" r="1.5"/></svg>
+          <span class="sidebar-link-text">Background Remover</span>
+        </a>
+        <a href="tool-svg-optimizer.html" class="sidebar-link" data-tooltip="SVG Optimizer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3L17 3L17 17L3 17Z"/><path d="M7 7L10 13L13 7"/></svg>
+          <span class="sidebar-link-text">SVG Optimizer</span>
+        </a>
+        <a href="tool-image-converter.html" class="sidebar-link" data-tooltip="Image Converter">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="10" height="12" rx="1"/><path d="M14 7L18 7L18 17L8 17"/><path d="M5 10L8 7.5L11 10"/></svg>
+          <span class="sidebar-link-text">Image Converter</span>
+        </a>
+        <a href="tool-image-tracer.html" class="sidebar-link" data-tooltip="Image Tracer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17L8 4L13 13L17 6"/><circle cx="3" cy="17" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="sidebar-link-text">Image Tracer</span>
+        </a>
+        <a href="tool-qr-generator.html" class="sidebar-link" data-tooltip="QR Generator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="6" height="6"/><rect x="12" y="2" width="6" height="6"/><rect x="2" y="12" width="6" height="6"/><rect x="14" y="14" width="4" height="4"/><path d="M12 12L12 14"/><path d="M14 12L18 12"/></svg>
+          <span class="sidebar-link-text">QR Generator</span>
+        </a>
+      </div>
+
+      <!-- SOCIAL MEDIA -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Social Media</span></div>
+        <a href="tool-bio-optimizer.html" class="sidebar-link" data-tooltip="Bio Optimizer">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5C4 3.5 5 2.5 6 2.5L14 2.5C15 2.5 16 3.5 16 4.5L16 13C16 14 15 15 14 15L10 15L6.5 18L7 15L6 15C5 15 4 14 4 13Z"/><path d="M7 7L13 7"/><path d="M7 10L11 10"/></svg>
+          <span class="sidebar-link-text">Bio Optimizer</span>
+        </a>
+        <a href="tool-partnerships-calculator.html" class="sidebar-link" data-tooltip="Partnerships Calculator">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L10 18"/><path d="M13.5 5.5C13.5 4 12 3 10 3C8 3 6.5 4 6.5 5.5C6.5 7 8 8 10 8C12 8 13.5 9 13.5 10.5C13.5 12 12 13 10 13C8 13 6.5 12 6.5 10.5"/></svg>
+          <span class="sidebar-link-text">Partnerships Calculator</span>
+        </a>
+      </div>
+
+      <!-- PRINT & PRODUCTION -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title"><span class="sidebar-section-title-text">Print &amp; Production</span></div>
+        <a href="tool-pdf-preflight.html" class="sidebar-link" data-tooltip="PDF Preflight">
+          <svg class="sidebar-link-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2L12 2L16 6L16 18L4 18Z"/><path d="M12 2L12 6L16 6"/><path d="M7 11L9 13L13 9"/></svg>
+          <span class="sidebar-link-text">PDF Preflight</span>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <p class="sidebar-footer-msg">No signup. No tracking.<br>Just tools.</p>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <button class="topbar-toggle topbar-hamburger" id="sidebarToggle" aria-label="Open sidebar menu">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M3 5H17"/>
+          <path d="M3 10H17"/>
+          <path d="M3 15H17"/>
+        </svg>
+      </button>
+      <button class="topbar-toggle topbar-collapse-btn" id="sidebarCollapseToggle" aria-label="Toggle sidebar collapse">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="16" height="14"/>
+          <path d="M8 3L8 17"/>
+        </svg>
+      </button>
+      <div class="breadcrumb">
+        <a href="index.html">jordan's archives</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="tools.html">free tools</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>Glyph Browser</span>
+      </div>
+    </div>
+
+    <!-- Tool Page Header -->
+    <div class="tool-page-header">
+      <div class="tool-page-header-inner">
+        <div class="tool-page-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4L8 16"/>
+            <path d="M12 4C12 4 16 4 16 8C16 12 12 12 12 12"/>
+            <circle cx="14" cy="15" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="tool-page-info">
+          <span class="tool-page-badge">Branding &amp; Design</span>
+          <h1 class="tool-page-title">Glyph Browser</h1>
+          <p class="tool-page-desc">Browse Unicode glyphs by category, search by character or hex code, and copy in multiple formats.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Embedded Tool -->
+    <div class="tool-embed">
+      <div class="tool-section">
+
+        <!-- Controls -->
+        <div class="glyph-controls">
+          <div class="glyph-search-wrap">
+            <svg class="glyph-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13L17 17"/></svg>
+            <input type="text" class="tool-input glyph-search" id="glyphSearch" placeholder="Search by character or hex code...">
+          </div>
+          <select class="glyph-category-select" id="glyphCategory"></select>
+        </div>
+
+        <!-- Grid header -->
+        <div class="glyph-header" style="margin-top: var(--space-4);">
+          <span class="glyph-header-label" id="gridLabel"></span>
+          <span class="glyph-header-count" id="gridCount"></span>
+        </div>
+
+        <!-- Grid -->
+        <div class="glyph-grid" id="glyphGrid"></div>
+        <p class="glyph-overflow" id="glyphOverflow" style="display:none;"></p>
+
+        <!-- Tip -->
+        <div class="glyph-tip" style="margin-top: var(--space-4);">
+          <strong>Tip:</strong> Double-click any glyph to quickly copy the character.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="tools-footer">
+      <span>jordan's archives</span>
+      <div>
+        <a href="index.html">home</a>
+        <span style="margin: 0 0.5rem; opacity: 0.3;">&middot;</span>
+        <a href="about.html">about</a>
+        <span style="margin: 0 0.5rem; opacity: 0.3;">&middot;</span>
+        <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+      </div>
+    </footer>
+
+  </main>
+
+</div>
+
+<!-- Glyph Browser Tool Script -->
+<script>
+(function() {
+  'use strict';
+
+  var CATEGORIES = [
+    { name: "Latin Basic", ranges: [[0x0020, 0x007f]] },
+    { name: "Latin Extended", ranges: [[0x0080, 0x00ff], [0x0100, 0x017f]] },
+    { name: "Greek", ranges: [[0x0370, 0x03ff]] },
+    { name: "Cyrillic", ranges: [[0x0400, 0x04ff]] },
+    { name: "Punctuation", ranges: [[0x2000, 0x206f]] },
+    { name: "Currency", ranges: [[0x20a0, 0x20cf]] },
+    { name: "Arrows", ranges: [[0x2190, 0x21ff]] },
+    { name: "Math Operators", ranges: [[0x2200, 0x22ff]] },
+    { name: "Box Drawing", ranges: [[0x2500, 0x257f]] },
+    { name: "Geometric Shapes", ranges: [[0x25a0, 0x25ff]] },
+    { name: "Symbols", ranges: [[0x2600, 0x26ff]] },
+    { name: "Dingbats", ranges: [[0x2700, 0x27bf]] },
+    { name: "Emoji", ranges: [[0x1f300, 0x1f5ff], [0x1f600, 0x1f64f], [0x1f680, 0x1f6ff]] }
+  ];
+
+  var MAX_DISPLAY = 400;
+
+  var categorySelect = document.getElementById('glyphCategory');
+  var searchInput = document.getElementById('glyphSearch');
+  var gridEl = document.getElementById('glyphGrid');
+  var gridLabel = document.getElementById('gridLabel');
+  var gridCount = document.getElementById('gridCount');
+  var overflowEl = document.getElementById('glyphOverflow');
+
+  var currentCategory = CATEGORIES[0].name;
+  var openPopoverCode = null;
+  var copiedFormat = null;
+  var copiedChar = null;
+  var copyTimeout = null;
+
+  // SVG icons
+  var ICON_COPY = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M2 11V2.5A.5.5 0 012.5 2H11"/></svg>';
+  var ICON_CHECK = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4"/></svg>';
+
+  // Populate category select
+  CATEGORIES.forEach(function(cat) {
+    var opt = document.createElement('option');
+    opt.value = cat.name;
+    opt.textContent = cat.name;
+    categorySelect.appendChild(opt);
+  });
+
+  function getGlyphs(catName) {
+    var cat = null;
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      if (CATEGORIES[i].name === catName) { cat = CATEGORIES[i]; break; }
+    }
+    if (!cat) return [];
+    var chars = [];
+    for (var r = 0; r < cat.ranges.length; r++) {
+      for (var c = cat.ranges[r][0]; c <= cat.ranges[r][1]; c++) {
+        chars.push(c);
+      }
+    }
+    return chars;
+  }
+
+  function filterGlyphs(glyphs, query) {
+    if (!query) return glyphs;
+    var lower = query.toLowerCase();
+    return glyphs.filter(function(code) {
+      var ch = String.fromCodePoint(code);
+      var hex = code.toString(16).toLowerCase();
+      return ch === query || hex.indexOf(lower) !== -1 || ('u+' + hex).indexOf(lower) !== -1;
+    });
+  }
+
+  function setCopiedState(ch, fmt) {
+    copiedChar = ch;
+    copiedFormat = fmt;
+    if (copyTimeout) clearTimeout(copyTimeout);
+    copyTimeout = setTimeout(function() {
+      copiedChar = null;
+      copiedFormat = null;
+      render();
+    }, 1500);
+  }
+
+  function copyToClipboard(text) {
+    return navigator.clipboard.writeText(text);
+  }
+
+  function copyGlyph(code) {
+    var ch = String.fromCodePoint(code);
+    copyToClipboard(ch).then(function() {
+      setCopiedState(ch, 'grid');
+      render();
+    });
+  }
+
+  function copyCode(code, format) {
+    var text = '';
+    switch (format) {
+      case 'char': text = String.fromCodePoint(code); break;
+      case 'html': text = '&#x' + code.toString(16) + ';'; break;
+      case 'css': text = '\\' + code.toString(16); break;
+      case 'js':
+        text = code <= 0xffff
+          ? '\\u' + ('0000' + code.toString(16)).slice(-4)
+          : '\\u{' + code.toString(16) + '}';
+        break;
+    }
+    copyToClipboard(text).then(function() {
+      setCopiedState(String.fromCodePoint(code), format);
+      render();
+    });
+  }
+
+  function closePopover() {
+    openPopoverCode = null;
+    render();
+  }
+
+  function render() {
+    var query = searchInput.value.trim();
+    var allGlyphs = getGlyphs(currentCategory);
+    var filtered = filterGlyphs(allGlyphs, query);
+
+    gridLabel.textContent = currentCategory;
+    gridCount.textContent = filtered.length + ' glyphs';
+
+    // Overflow
+    if (filtered.length > MAX_DISPLAY) {
+      overflowEl.style.display = '';
+      overflowEl.textContent = 'Showing ' + MAX_DISPLAY + ' of ' + filtered.length + ' glyphs. Use search to narrow results.';
+    } else {
+      overflowEl.style.display = 'none';
+    }
+
+    var display = filtered.slice(0, MAX_DISPLAY);
+
+    // Build grid
+    gridEl.innerHTML = '';
+
+    for (var i = 0; i < display.length; i++) {
+      (function(code) {
+        var ch = String.fromCodePoint(code);
+        var hex = code.toString(16).toUpperCase();
+        while (hex.length < 4) hex = '0' + hex;
+
+        var cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'glyph-cell';
+        cell.title = 'U+' + hex;
+        cell.textContent = ch;
+
+        if (openPopoverCode === code) {
+          cell.classList.add('active');
+        }
+        if (copiedFormat === 'grid' && copiedChar === ch) {
+          cell.classList.add('copied');
+        }
+
+        cell.addEventListener('click', function(e) {
+          e.stopPropagation();
+          openPopoverCode = (openPopoverCode === code) ? null : code;
+          render();
+        });
+
+        cell.addEventListener('dblclick', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          openPopoverCode = null;
+          copyGlyph(code);
+        });
+
+        gridEl.appendChild(cell);
+
+        // Show popover
+        if (openPopoverCode === code) {
+          showPopover(cell, code);
+        }
+      })(display[i]);
+    }
+  }
+
+  function showPopover(anchorEl, code) {
+    var ch = String.fromCodePoint(code);
+    var hex = code.toString(16).toUpperCase();
+    while (hex.length < 4) hex = '0' + hex;
+
+    // Backdrop
+    var backdrop = document.createElement('div');
+    backdrop.className = 'glyph-popover-backdrop';
+    backdrop.addEventListener('click', function() {
+      closePopover();
+    });
+    gridEl.appendChild(backdrop);
+
+    // Popover
+    var pop = document.createElement('div');
+    pop.className = 'glyph-popover';
+
+    pop.innerHTML =
+      '<div class="glyph-popover-header">' +
+        '<span class="glyph-popover-char">' + ch + '</span>' +
+        '<div>' +
+          '<div class="glyph-popover-code">U+' + hex + '</div>' +
+          '<div class="glyph-popover-decimal">Decimal: ' + code + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="glyph-popover-actions">' +
+        '<button type="button" class="glyph-popover-btn' + (copiedFormat === 'char' && copiedChar === ch ? ' copied-btn' : '') + '" data-fmt="char">' +
+          (copiedFormat === 'char' && copiedChar === ch ? ICON_CHECK : ICON_COPY) + ' Char</button>' +
+        '<button type="button" class="glyph-popover-btn' + (copiedFormat === 'html' && copiedChar === ch ? ' copied-btn' : '') + '" data-fmt="html">' +
+          (copiedFormat === 'html' && copiedChar === ch ? ICON_CHECK : ICON_COPY) + ' HTML</button>' +
+        '<button type="button" class="glyph-popover-btn' + (copiedFormat === 'css' && copiedChar === ch ? ' copied-btn' : '') + '" data-fmt="css">' +
+          (copiedFormat === 'css' && copiedChar === ch ? ICON_CHECK : ICON_COPY) + ' CSS</button>' +
+        '<button type="button" class="glyph-popover-btn' + (copiedFormat === 'js' && copiedChar === ch ? ' copied-btn' : '') + '" data-fmt="js">' +
+          (copiedFormat === 'js' && copiedChar === ch ? ICON_CHECK : ICON_COPY) + ' JS</button>' +
+      '</div>';
+
+    var btns = pop.querySelectorAll('.glyph-popover-btn');
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        copyCode(code, btn.getAttribute('data-fmt'));
+      });
+    });
+
+    // Position popover relative to cell
+    anchorEl.style.position = 'relative';
+    anchorEl.appendChild(pop);
+
+    // Position: try above, fall back to below
+    requestAnimationFrame(function() {
+      var cellRect = anchorEl.getBoundingClientRect();
+      var popRect = pop.getBoundingClientRect();
+      var spaceAbove = cellRect.top;
+
+      // Center horizontally
+      var leftOffset = (cellRect.width - 240) / 2;
+      pop.style.left = leftOffset + 'px';
+
+      if (spaceAbove > popRect.height + 8) {
+        pop.style.bottom = (cellRect.height + 4) + 'px';
+        pop.style.top = 'auto';
+      } else {
+        pop.style.top = (cellRect.height + 4) + 'px';
+        pop.style.bottom = 'auto';
+      }
+
+      // Keep within viewport horizontally
+      var updatedRect = pop.getBoundingClientRect();
+      if (updatedRect.left < 8) {
+        pop.style.left = (-cellRect.left + 8) + 'px';
+      } else if (updatedRect.right > window.innerWidth - 8) {
+        pop.style.left = (window.innerWidth - 8 - 240 - cellRect.left) + 'px';
+      }
+    });
+  }
+
+  // Event listeners
+  categorySelect.addEventListener('change', function() {
+    currentCategory = this.value;
+    searchInput.value = '';
+    openPopoverCode = null;
+    render();
+  });
+
+  var searchTimer = null;
+  searchInput.addEventListener('input', function() {
+    if (searchTimer) clearTimeout(searchTimer);
+    searchTimer = setTimeout(function() {
+      openPopoverCode = null;
+      render();
+    }, 150);
+  });
+
+  // Initial render
+  render();
+})();
+</script>
+
+<!-- Paper texture animation script -->
+<script src="paper-texture.js"></script>
+<!-- Floating depth icons -->
+<script src="floating-icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

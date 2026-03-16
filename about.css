@@ -1,0 +1,184 @@
+/* ========================================
+   ABOUT.CSS — About Page Layout
+   Jordan's Archives
+   ======================================== */
+
+/* ---- About Page Layout ---- */
+.about-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-6) var(--space-8) var(--space-16);
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- Back button ---- */
+.about-back {
+  position: fixed;
+  top: var(--space-6);
+  left: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  z-index: 10;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.about-back:hover {
+  color: var(--accent);
+}
+
+.about-back svg {
+  flex-shrink: 0;
+}
+
+/* ---- Character reuse (same as hub) ---- */
+.about-page .hub-character {
+  margin-top: var(--space-12);
+  margin-bottom: var(--space-6);
+}
+
+/* ---- About content section ---- */
+.about-content {
+  max-width: 520px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.about-bio {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: var(--space-8);
+  max-width: 440px;
+}
+
+/* ---- Contact button ---- */
+.about-contact-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 70px;
+  border: 1.5px solid var(--green-dark);
+  background: rgba(241, 233, 231, 0.6);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all var(--duration-normal) var(--ease-out);
+  margin-bottom: var(--space-8);
+}
+
+.about-contact-btn:hover {
+  background: rgba(241, 233, 231, 0.85);
+  border-color: var(--green);
+  box-shadow: var(--shadow-md);
+}
+
+.about-contact-btn-label {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--green-dark);
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ---- Social links on About page ---- */
+.about-socials {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-bottom: var(--space-10);
+}
+
+.about-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  color: var(--green-dark);
+  border: 1.5px solid var(--green-dark);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.about-social-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+/* ---- About page footer ---- */
+.about-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+
+.about-footer a {
+  color: var(--text-muted);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.about-footer a:hover {
+  color: var(--accent);
+}
+
+/* ==============================
+   RESPONSIVE
+   ============================== */
+@media (max-width: 768px) {
+  .about-page {
+    padding: var(--space-4) var(--space-5) var(--space-12);
+  }
+
+  .about-back {
+    top: var(--space-4);
+    left: var(--space-4);
+  }
+
+  .about-page .hub-character {
+    width: 200px;
+    height: 260px;
+    margin-top: var(--space-16);
+    margin-bottom: var(--space-4);
+  }
+
+  .about-bio {
+    font-size: var(--text-sm);
+  }
+
+  .about-footer {
+    flex-direction: column;
+    gap: var(--space-2);
+    text-align: center;
+    padding: var(--space-4) var(--space-5);
+  }
+}
+
+@media (max-width: 480px) {
+  .about-page .hub-character {
+    width: 180px;
+    height: 230px;
+    margin-top: var(--space-12);
+  }
+}
