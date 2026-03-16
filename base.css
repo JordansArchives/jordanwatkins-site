@@ -53,6 +53,86 @@ button {
   cursor: pointer;
 }
 
+/* ========================================
+   @FONT-FACE — Self-hosted fonts
+   Awesome Serif (display) + Trip Sans (body)
+   ======================================== */
+
+/* --- Awesome Serif — Display/Heading font --- */
+@font-face {
+  font-family: 'Awesome Serif';
+  src: url('fonts/AwesomeSerif-LightRegular.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Awesome Serif';
+  src: url('fonts/AwesomeSerif-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Awesome Serif';
+  src: url('fonts/AwesomeSerif-MediumRegular.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Awesome Serif';
+  src: url('fonts/AwesomeSerif-BoldRegular.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- Trip Sans — Body/UI font --- */
+@font-face {
+  font-family: 'Trip Sans';
+  src: url('fonts/trip-sans.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Trip Sans';
+  src: url('fonts/trip-sans-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Trip Sans';
+  src: url('fonts/trip-sans-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Trip Sans';
+  src: url('fonts/trip-sans-ultra.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- Trip Sans Mono — Code/mono font --- */
+@font-face {
+  font-family: 'Trip Sans Mono';
+  src: url('fonts/trip-sans-mono-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* --- Design Tokens --- */
 :root {
   /* New Color Palette */
@@ -92,9 +172,9 @@ button {
   --shadow-card-hover: 0 8px 24px rgba(26, 45, 20, 0.12);
 
   /* Typography */
-  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-  --font-body: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-display: 'Awesome Serif', Georgia, 'Times New Roman', serif;
+  --font-body: 'Trip Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Trip Sans Mono', 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Type Scale */
   --text-xs: 0.75rem;
