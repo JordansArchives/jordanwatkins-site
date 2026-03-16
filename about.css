@@ -77,14 +77,24 @@
   -webkit-backdrop-filter: blur(2px);
   cursor: pointer;
   overflow: hidden;
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: var(--space-8);
+  box-shadow: 0 2px 4px rgba(26, 45, 20, 0.06);
 }
 
 .about-contact-btn:hover {
   background: rgba(241, 233, 231, 0.85);
   border-color: var(--green);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(26, 45, 20, 0.14), 0 4px 10px rgba(26, 45, 20, 0.08);
+}
+
+.about-contact-btn:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 4px 12px rgba(26, 45, 20, 0.1);
 }
 
 .about-contact-btn-label {
@@ -113,13 +123,24 @@
   border-radius: 0;
   color: var(--green-dark);
   border: 1.5px solid var(--green-dark);
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .about-social-link:hover {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-subtle);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(26, 45, 20, 0.12);
+}
+
+.about-social-link:active {
+  transform: translateY(-1px) scale(0.95);
+  box-shadow: 0 2px 8px rgba(26, 45, 20, 0.08);
 }
 
 /* ---- About page footer ---- */

@@ -43,17 +43,28 @@
   box-shadow:
     3px 3px 0 rgba(26, 45, 20, 0.08),
     6px 6px 0 rgba(26, 45, 20, 0.04);
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   padding: var(--space-6);
 }
 
 .tools-layout .tool-card:hover {
-  transform: translate(-2px, -3px);
+  transform: translate(-3px, -5px);
   box-shadow:
-    5px 5px 0 rgba(26, 45, 20, 0.12),
-    10px 10px 0 rgba(26, 45, 20, 0.06);
+    6px 6px 0 rgba(26, 45, 20, 0.12),
+    12px 12px 0 rgba(26, 45, 20, 0.06),
+    0 12px 24px rgba(26, 45, 20, 0.1);
   border-color: var(--green);
   background: rgba(241, 233, 231, 0.88);
+}
+
+.tools-layout .tool-card:active {
+  transform: translate(-1px, -1px) scale(0.98);
+  box-shadow:
+    2px 2px 0 rgba(26, 45, 20, 0.1),
+    4px 4px 0 rgba(26, 45, 20, 0.05);
 }
 
 /* Card title uses display font */
