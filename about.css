@@ -78,23 +78,27 @@
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+              box-shadow 0.2s ease-out,
+              background 0.2s ease-out,
+              border-color 0.2s ease-out;
   margin-bottom: var(--space-8);
-  box-shadow: 0 2px 4px rgba(26, 45, 20, 0.06);
+  box-shadow: 3px 3px 0 rgba(26, 45, 20, 0.08),
+              6px 6px 0 rgba(26, 45, 20, 0.04);
 }
 
 .about-contact-btn:hover {
   background: rgba(241, 233, 231, 0.85);
   border-color: var(--green);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(26, 45, 20, 0.14), 0 4px 10px rgba(26, 45, 20, 0.08);
+  transform: translate(-3px, -5px);
+  box-shadow: 6px 6px 0 rgba(26, 45, 20, 0.12),
+              12px 12px 0 rgba(26, 45, 20, 0.06),
+              0 12px 24px rgba(26, 45, 20, 0.1);
 }
 
 .about-contact-btn:active {
-  transform: translateY(-1px) scale(0.98);
-  box-shadow: 0 4px 12px rgba(26, 45, 20, 0.1);
+  transform: translate(-1px, -1px) scale(0.98);
+  box-shadow: 2px 2px 0 rgba(26, 45, 20, 0.1),
+              4px 4px 0 rgba(26, 45, 20, 0.05);
 }
 
 .about-contact-btn-label {
@@ -123,24 +127,27 @@
   border-radius: 0;
   color: var(--green-dark);
   border: 1.5px solid var(--green-dark);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 2px 0 rgba(26, 45, 20, 0.06),
+              4px 4px 0 rgba(26, 45, 20, 0.03);
+  transition: transform 0.2s ease-out,
+              box-shadow 0.2s ease-out,
+              color 0.2s ease-out,
+              border-color 0.2s ease-out,
+              background 0.2s ease-out;
 }
 
 .about-social-link:hover {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-subtle);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(26, 45, 20, 0.12);
+  transform: translate(-2px, -3px);
+  box-shadow: 4px 4px 0 rgba(26, 45, 20, 0.1),
+              8px 8px 0 rgba(26, 45, 20, 0.05);
 }
 
 .about-social-link:active {
-  transform: translateY(-1px) scale(0.95);
-  box-shadow: 0 2px 8px rgba(26, 45, 20, 0.08);
+  transform: translate(-1px, -1px) scale(0.95);
+  box-shadow: 1px 1px 0 rgba(26, 45, 20, 0.08);
 }
 
 /* ---- About page footer ---- */

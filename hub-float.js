@@ -90,6 +90,8 @@
         isDragging: false,
         wasDragged: false,
         dragStartTime: 0,
+        isHovered: false,
+        hoverLift: 0,
       };
 
       cardStates.push(state);
@@ -108,6 +110,12 @@
       y += Math.sin(time * cfg.floatSpeedY + cfg.floatPhaseY) * cfg.floatAmpY;
       rot = cfg.rotation + Math.sin(time * 0.0004 + cfg.floatPhaseX) * 0.5;
     }
+
+    // Smooth hover lift — lerp toward target
+    var liftTarget = state.isHovered && !state.isDragging ? -5 : 0;
+    state.hoverLift += (liftTarget - state.hoverLift) * 0.15;
+    if (Math.abs(state.hoverLift - liftTarget) < 0.1) state.hoverLift = liftTarget;
+    y += state.hoverLift;
 
     state.el.style.transform =
       'translate(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px) rotate(' + rot.toFixed(2) + 'deg)';
@@ -200,6 +208,18 @@
   area.addEventListener('touchstart', onPointerDown, { passive: false });
   window.addEventListener('touchmove', onPointerMove, { passive: false });
   window.addEventListener('touchend', onPointerUp);
+
+  // Hover detection for smooth JS-driven lift
+  cards.forEach(function (card) {
+    card.addEventListener('mouseenter', function () {
+      var idx = parseInt(card.getAttribute('data-float-index'));
+      if (cardStates[idx]) cardStates[idx].isHovered = true;
+    });
+    card.addEventListener('mouseleave', function () {
+      var idx = parseInt(card.getAttribute('data-float-index'));
+      if (cardStates[idx]) cardStates[idx].isHovered = false;
+    });
+  });
 
   // Prevent default click on cards when dragged
   cards.forEach(function (card) {
