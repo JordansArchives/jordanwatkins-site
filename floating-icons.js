@@ -36,11 +36,11 @@
   ];
 
   // Depth config: scale multiplier, blur amount, opacity, z-index, drift speed
-  // mouseAmp: how much mouse movement shifts the icon (far = more, close = less)
+  // mouseAmp: how much mouse movement shifts the icon (close = more, far = less)
   var depthConfig = {
-    0: { scale: 0.55, blur: 2.5, opacity: 0.5,  z: 0, driftAmp: 8,  driftSpeed: 0.0004, mouseAmp: 15  },
+    0: { scale: 0.55, blur: 2.5, opacity: 0.5,  z: 0, driftAmp: 8,  driftSpeed: 0.0004, mouseAmp: 3   },
     1: { scale: 0.8,  blur: 0.5, opacity: 0.75, z: 1, driftAmp: 5,  driftSpeed: 0.0007, mouseAmp: 8   },
-    2: { scale: 1.0,  blur: 0,   opacity: 0.9,  z: 3, driftAmp: 3,  driftSpeed: 0.001,  mouseAmp: 3   },
+    2: { scale: 1.0,  blur: 0,   opacity: 0.9,  z: 3, driftAmp: 3,  driftSpeed: 0.001,  mouseAmp: 15  },
   };
 
   var isMobile = window.innerWidth <= 768;
