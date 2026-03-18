@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Hand-drawn pointing hand in brand dark green -->
+  <path d="M10 2 C9 2, 8 3, 8 5 L8 14 C6 13, 4 13.5, 4 15.5 C4 17, 5 17, 6 17.5 L8 18 L8 22 C8 25, 10 28, 14 28 L20 28 C24 28, 26 25, 26 22 L26 17 C26 15, 25 14, 23 14 C23 13, 22 12, 20.5 12 C20 11.5, 19 11, 17.5 11.5 L17 11.5 L17 5 C17 3, 15 1.5, 13.5 2 C12.5 2, 11 2.5, 10 2 Z" 
+        fill="#1a2d14" stroke="#0a1408" stroke-width="1" stroke-linejoin="round"/>
+  <!-- Finger separators -->
+  <line x1="14" y1="14" x2="14" y2="18" stroke="#0a1408" stroke-width="0.6" opacity="0.5"/>
+  <line x1="17.5" y1="13" x2="17.5" y2="18" stroke="#0a1408" stroke-width="0.6" opacity="0.5"/>
+  <line x1="21" y1="14.5" x2="21" y2="18" stroke="#0a1408" stroke-width="0.6" opacity="0.5"/>
+</svg>

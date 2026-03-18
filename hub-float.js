@@ -161,7 +161,7 @@
     activeState = state;
 
     card.style.zIndex = '50';
-    card.style.cursor = 'grabbing';
+    card.style.cursor = 'pointer';
     e.preventDefault();
   }
 

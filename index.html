@@ -21,6 +21,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jordan's Archives</title>
+
+<!-- Redirect Supabase Auth recovery tokens to admin page -->
+<script>
+if (window.location.hash && window.location.hash.indexOf('type=recovery') > -1) {
+  window.location.replace('admin.html' + window.location.hash);
+}
+</script>
 <meta name="description" content="Jordan's Archives — tools, resources, and archives for creators.">
 
 <!-- Fonts -->
@@ -114,5 +121,7 @@
 <script src="floating-icons.js"></script>
 <!-- Floating + drag behavior -->
 <script src="hub-float.js"></script>
+<!-- Smooth cursor trail -->
+<script src="cursor-trail.js"></script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Hand-drawn arrow cursor in brand dark green -->
+  <path d="M5 1 L5 25 L10 19.5 L15.5 28 L19 26 L13 17.5 L20 14 Z" 
+        fill="#1a2d14" stroke="#0a1408" stroke-width="1.2" stroke-linejoin="round"
+        stroke-linecap="round"/>
+  <!-- Subtle sketch double-stroke -->
+  <path d="M6 3 L6 23 L10.5 18 L16 27" 
+        fill="none" stroke="#37481c" stroke-width="0.5" opacity="0.4"
+        stroke-linecap="round"/>
+</svg>

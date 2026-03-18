@@ -32,7 +32,7 @@
     { src: 'icon-film.png',      x: 20,  y: 56,  depth: 0, rot: -12,  size: 80  },
     { src: 'icon-camera.png',    x: 7,   y: 78,  depth: 2, rot: 4,    size: 110 },
     { src: 'icon-vinyl.png',     x: 78,  y: 66,  depth: 0, rot: -8,   size: 100 },
-    { src: 'icon-books.png',     x: 92,  y: 80,  depth: 1, rot: 6,    size: 90  },
+    { src: 'icon-books.png',     x: 55,  y: 82,  depth: 1, rot: 6,    size: 90, link: 'blog.html', label: 'secret-blogs-label.png' },
   ];
 
   // Depth config: scale multiplier, blur amount, opacity, z-index, drift speed
@@ -56,7 +56,9 @@
   var iconEls = [];
 
   // Create icon elements
-  icons.forEach(function (icon, i) {
+  // On the tools page, skip linked icons (like the secret blog books)
+  var filteredIcons = isToolsPage ? icons.filter(function(ic) { return !ic.link; }) : icons;
+  filteredIcons.forEach(function (icon, i) {
     var cfg = depthConfig[icon.depth];
     var el = document.createElement('div');
     el.className = 'floating-icon';
@@ -65,20 +67,23 @@
     var adjustedY = icon.y;
 
     // Shift all icons down 50px from their base position
+    // Linked icons get pointer-events:auto + higher z-index so they're clickable
+    var isLinked = !!icon.link;
     el.style.cssText = [
       'position: absolute',
       'left: ' + icon.x + '%',
       'top: calc(' + adjustedY + '% + 50px)',
       'width: ' + displaySize + 'px',
       'height: ' + displaySize + 'px',
-      'z-index: ' + cfg.z,
+      'z-index: ' + (isLinked ? 10 : cfg.z),
       'opacity: ' + cfg.opacity,
       'filter: blur(' + cfg.blur + 'px)',
       'transform: translate(-50%, -50%) rotate(' + icon.rot + 'deg)',
       'will-change: transform',
-      'pointer-events: none',
+      'pointer-events: ' + (isLinked ? 'auto' : 'none'),
       'user-select: none',
       '-webkit-user-select: none',
+      isLinked ? 'cursor: pointer' : '',
     ].join(';');
 
     var img = document.createElement('img');
@@ -88,8 +93,58 @@
     img.draggable = false;
     img.style.cssText = 'width:100%;height:100%;object-fit:contain;';
 
-    el.appendChild(img);
-    container.appendChild(el);
+    // If icon has a link, wrap in an anchor and append to body (not container)
+    // so it's not trapped under the floating-icons-layer z-index
+    if (isLinked) {
+      var anchor = document.createElement('a');
+      anchor.href = icon.link;
+      anchor.style.cssText = 'display:block;width:100%;height:100%;cursor:pointer;pointer-events:auto;';
+      anchor.appendChild(img);
+      el.appendChild(anchor);
+
+      // If icon has a label image, add it below the icon
+      if (icon.label) {
+        var labelImg = document.createElement('img');
+        labelImg.src = icon.label;
+        labelImg.alt = '';
+        labelImg.loading = 'lazy';
+        labelImg.draggable = false;
+        var labelW = Math.round(displaySize * 1.3);
+        labelImg.style.cssText = [
+          'display: block',
+          'width: ' + labelW + 'px',
+          'height: auto',
+          'position: absolute',
+          'top: ' + (displaySize - 4) + 'px',
+          'left: 50%',
+          'transform: translateX(-50%)',
+          'pointer-events: none',
+          'user-select: none',
+          '-webkit-user-select: none',
+        ].join(';');
+        // Wrap in anchor so tapping label also navigates
+        var labelAnchor = document.createElement('a');
+        labelAnchor.href = icon.link;
+        labelAnchor.style.cssText = 'pointer-events:auto;cursor:pointer;';
+        labelAnchor.appendChild(labelImg);
+        el.appendChild(labelAnchor);
+      }
+
+      // Override: position fixed, outside the floating-icons-layer
+      el.style.position = 'fixed';
+      el.style.zIndex = '5';
+      // Allow overflow for label
+      el.style.overflow = 'visible';
+      // Subtle hover brightness
+      (function(element, blurVal) {
+        element.addEventListener('mouseenter', function() { element.style.filter = 'blur(' + blurVal + 'px) brightness(1.2)'; });
+        element.addEventListener('mouseleave', function() { element.style.filter = 'blur(' + blurVal + 'px)'; });
+      })(el, cfg.blur);
+      document.body.appendChild(el);
+    } else {
+      el.appendChild(img);
+      container.appendChild(el);
+    }
 
     iconEls.push({
       el: el,

@@ -1,0 +1,427 @@
+/* ========================================
+   BLOG.CSS — Blog Pages + XP Window Chrome
+   Jordan's Archives
+   ======================================== */
+
+/* ---- Blog Page Layout ---- */
+.blog-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-6) var(--space-8) var(--space-16);
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- Blog Header ---- */
+.blog-header {
+  text-align: center;
+  margin-top: var(--space-16);
+  margin-bottom: var(--space-12);
+}
+
+.blog-title {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.blog-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-faint);
+}
+
+/* ---- Card Grid ---- */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-8);
+  max-width: 820px;
+  width: 100%;
+  margin-bottom: var(--space-16);
+}
+
+/* ---- XP Window Card ---- */
+.xp-card {
+  display: block;
+  border: 2px solid var(--border);
+  border-top: 2px solid #e0d8d5;
+  border-left: 2px solid #e0d8d5;
+  border-right: 2px solid #b5aca8;
+  border-bottom: 2px solid #b5aca8;
+  background: var(--bg);
+  box-shadow: 4px 4px 0 rgba(26, 45, 20, 0.15);
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.xp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 6px 0 rgba(26, 45, 20, 0.18),
+              0 8px 16px rgba(26, 45, 20, 0.06);
+}
+
+/* ---- XP Title Bar ---- */
+.xp-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+  padding: 0 8px 0 10px;
+  background: linear-gradient(180deg, #1a2d14 0%, #2a3d24 100%);
+  border-bottom: 1px solid #0f1c0c;
+}
+
+.xp-titlebar-text {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--beige);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.xp-titlebar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.xp-btn {
+  width: 16px;
+  height: 14px;
+  border: 1px solid rgba(241, 233, 231, 0.3);
+  background: rgba(241, 233, 231, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  line-height: 1;
+  color: rgba(241, 233, 231, 0.7);
+  cursor: default;
+}
+
+/* ---- XP Window Body ---- */
+.xp-body {
+  padding: 16px;
+  border-top: 1px solid #e8e0dd;
+}
+
+.xp-body-excerpt {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.xp-body-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.xp-topic-tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--beige);
+  background: var(--green);
+  padding: 2px 8px;
+  letter-spacing: 0.02em;
+}
+
+.xp-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+/* ---- Loading / Empty States ---- */
+.blog-loading,
+.blog-empty {
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+  font-family: var(--font-body);
+  color: var(--text-faint);
+  font-size: var(--text-base);
+}
+
+.blog-loading::after {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--green-dark);
+  animation: blog-spin 0.6s linear infinite;
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}
+
+@keyframes blog-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   POST PAGE — Single XP Window
+   ======================================== */
+
+.post-window {
+  max-width: 720px;
+  width: 100%;
+  margin-top: var(--space-16);
+  margin-bottom: var(--space-12);
+  border: 2px solid var(--border);
+  border-top: 2px solid #e0d8d5;
+  border-left: 2px solid #e0d8d5;
+  border-right: 2px solid #b5aca8;
+  border-bottom: 2px solid #b5aca8;
+  background: var(--bg);
+  box-shadow: 4px 4px 0 rgba(26, 45, 20, 0.15);
+}
+
+/* ---- Post Meta (inside window body) ---- */
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+/* ---- Cover Image ---- */
+.post-cover {
+  width: 100%;
+  margin-bottom: var(--space-6);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ---- Post Content ---- */
+.post-content {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+
+.post-content h1 { font-size: var(--text-2xl); }
+.post-content h2 { font-size: var(--text-xl); }
+.post-content h3 { font-size: var(--text-lg); }
+
+.post-content p {
+  margin-bottom: var(--space-4);
+}
+
+.post-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.post-content a:hover {
+  color: var(--accent-hover);
+}
+
+.post-content img {
+  max-width: 100%;
+  margin: var(--space-4) 0;
+  border: 1px solid var(--border-subtle);
+}
+
+.post-content blockquote {
+  border-left: 3px solid var(--green);
+  padding: var(--space-2) var(--space-4);
+  margin: var(--space-4) 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.post-content ul,
+.post-content ol {
+  padding-left: var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.post-content li {
+  list-style: disc;
+  margin-bottom: var(--space-1);
+}
+
+.post-content ol li {
+  list-style: decimal;
+}
+
+.post-content code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: var(--bg-surface);
+  padding: 1px 4px;
+}
+
+.post-content pre {
+  background: var(--bg-surface);
+  padding: var(--space-4);
+  overflow-x: auto;
+  margin: var(--space-4) 0;
+  border: 1px solid var(--border-subtle);
+}
+
+.post-content pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ---- Divider ---- */
+.post-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--space-8) 0;
+}
+
+/* ---- Comments / Updates Section ---- */
+.post-comments-section {
+  margin-top: var(--space-4);
+}
+
+.post-comments-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+}
+
+.post-comment {
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  margin-bottom: var(--space-3);
+}
+
+.post-comment-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-bottom: var(--space-2);
+}
+
+.post-comment-body {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.post-no-comments {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+}
+
+/* ---- Post Loading / Error ---- */
+.post-loading {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  font-family: var(--font-body);
+  color: var(--text-faint);
+}
+
+.post-loading::after {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--green-dark);
+  animation: blog-spin 0.6s linear infinite;
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}
+
+.post-error {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  font-family: var(--font-body);
+  color: var(--accent);
+}
+
+/* ---- Blog Login Link (footer) ---- */
+.blog-login-link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--border) !important;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.blog-login-link:hover {
+  color: var(--text-faint) !important;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .blog-page {
+    padding: var(--space-4) var(--space-5) var(--space-12);
+  }
+
+  .blog-header {
+    margin-top: var(--space-12);
+    margin-bottom: var(--space-8);
+  }
+
+  .blog-title {
+    font-size: var(--text-3xl);
+  }
+
+  .blog-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .post-window {
+    margin-top: var(--space-12);
+  }
+}
+
+@media (max-width: 480px) {
+  .blog-title {
+    font-size: var(--text-2xl);
+  }
+
+  .blog-subtitle {
+    font-size: var(--text-sm);
+  }
+
+  .xp-body {
+    padding: 12px;
+  }
+}
