@@ -11,8 +11,9 @@
   var container = document.getElementById('floatingIcons');
   if (!container) return;
 
-  // Disable mouse parallax on the tools page
+  // Page detection
   var isToolsPage = !!document.querySelector('.tools-layout');
+  var isHomePage = !!document.querySelector('.hub-page');
 
   // Icon definitions with position (% of viewport), depth layer, and rotation
   // depth: 0 = far back (small, blurry), 1 = mid, 2 = foreground (large, sharp)
@@ -56,9 +57,15 @@
   var iconEls = [];
 
   // Create icon elements
-  // On the tools page, skip linked icons (like the secret blog books)
-  var filteredIcons = isToolsPage ? icons.filter(function(ic) { return !ic.link; }) : icons;
+  // On the tools page, skip the books icon entirely
+  // On non-home pages, strip the link/label so it's just a decorative icon
+  var filteredIcons = icons;
+  if (isToolsPage) {
+    filteredIcons = icons.filter(function(ic) { return !ic.link; });
+  }
   filteredIcons.forEach(function (icon, i) {
+    // Only make the books clickable on the homepage
+    var isLinkedOnThisPage = !!icon.link && isHomePage;
     var cfg = depthConfig[icon.depth];
     var el = document.createElement('div');
     el.className = 'floating-icon';
@@ -67,8 +74,7 @@
     var adjustedY = icon.y;
 
     // Shift all icons down 50px from their base position
-    // Linked icons get pointer-events:auto + higher z-index so they're clickable
-    var isLinked = !!icon.link;
+    var isLinked = isLinkedOnThisPage;
     el.style.cssText = [
       'position: absolute',
       'left: ' + icon.x + '%',
@@ -130,8 +136,10 @@
         el.appendChild(labelAnchor);
       }
 
-      // Override: position fixed, outside the floating-icons-layer
-      el.style.position = 'fixed';
+      // Place inside hub-page so it scrolls with content and is in the same
+      // stacking context — fixes mobile tap not working on initial load
+      var hubPage = document.querySelector('.hub-page');
+      el.style.position = 'absolute';
       el.style.zIndex = '2';
       // Allow overflow for label
       el.style.overflow = 'visible';
@@ -140,7 +148,11 @@
         element.addEventListener('mouseenter', function() { element.style.filter = 'blur(' + blurVal + 'px) brightness(1.2)'; });
         element.addEventListener('mouseleave', function() { element.style.filter = 'blur(' + blurVal + 'px)'; });
       })(el, cfg.blur);
-      document.body.appendChild(el);
+      if (hubPage) {
+        hubPage.appendChild(el);
+      } else {
+        document.body.appendChild(el);
+      }
     } else {
       el.appendChild(img);
       container.appendChild(el);
