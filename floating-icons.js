@@ -75,7 +75,7 @@
       'top: calc(' + adjustedY + '% + 50px)',
       'width: ' + displaySize + 'px',
       'height: ' + displaySize + 'px',
-      'z-index: ' + (isLinked ? 1 : cfg.z),
+      'z-index: ' + (isLinked ? 2 : cfg.z),
       'opacity: ' + cfg.opacity,
       'filter: blur(' + cfg.blur + 'px)',
       'transform: translate(-50%, -50%) rotate(' + icon.rot + 'deg)',
@@ -132,7 +132,7 @@
 
       // Override: position fixed, outside the floating-icons-layer
       el.style.position = 'fixed';
-      el.style.zIndex = '1';
+      el.style.zIndex = '2';
       // Allow overflow for label
       el.style.overflow = 'visible';
       // Subtle hover brightness
