@@ -114,71 +114,21 @@
 }
 
 /* ---- Category header refinement ---- */
+.tools-layout .category-header {
+  border-bottom: 2.5px dashed var(--green-dark);
+  opacity: 1;
+  padding-bottom: var(--space-3);
+}
+
 .tools-layout .category-title {
   font-family: var(--font-display);
 }
 
-/* ========================================
-   BRANDED SECTION DIVIDERS
-   Hand-drawn sketchy separators between categories
-   ======================================== */
-
-.section-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2) var(--space-8);
-  gap: var(--space-4);
-  opacity: 0.55;
-}
-
-.section-divider svg {
-  flex-shrink: 0;
-}
-
-/* The hand-drawn line strokes */
-.divider-line {
-  flex: 1;
-  height: 12px;
-  overflow: visible;
-}
-
-.divider-line path {
-  stroke: var(--green-dark);
-  stroke-width: 1.2;
-  fill: none;
-  stroke-linecap: round;
-}
-
-/* Center ornament — small leaf/diamond mark */
-.divider-ornament {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.divider-ornament path {
-  stroke: var(--green-dark);
-  stroke-width: 1.2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-/* Variant: red divider for after Most Used section */
-.section-divider-red {
-  opacity: 0.45;
-}
-
-.section-divider-red .divider-line path {
-  stroke: #a82226;
-}
-
-.section-divider-red .divider-ornament path {
-  stroke: #a82226;
-}
-
 /* ---- Most Used — red bold styling ---- */
+#most-used .category-header {
+  border-bottom-color: #a82226;
+}
+
 .category-title-red {
   color: #a82226;
   font-weight: 700;
@@ -758,16 +708,6 @@
    RESPONSIVE
    ============================== */
 @media (max-width: 768px) {
-  .section-divider {
-    padding: var(--space-1) var(--space-5);
-    gap: var(--space-3);
-  }
-
-  .divider-ornament {
-    width: 16px;
-    height: 16px;
-  }
-
   .tools-layout .card-grid {
     grid-template-columns: 1fr;
     gap: var(--space-4);
