@@ -164,7 +164,7 @@
   font-size: var(--text-xs);
   color: var(--text-faint);
   background: transparent;
-  z-index: 2;
+  z-index: 4;
 }
 
 .hub-footer a {
