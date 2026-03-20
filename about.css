@@ -150,7 +150,7 @@
   box-shadow: 1px 1px 0 rgba(26, 45, 20, 0.08);
 }
 
-/* ---- FAQ section for SEO/GEO ---- */
+/* ---- FAQ section for SEO/GEO (accordion) ---- */
 .about-faq {
   position: relative;
   z-index: 2;
@@ -168,23 +168,75 @@
   margin-bottom: var(--space-5);
 }
 
+/* Accordion items */
 .about-faq-item {
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-3);
+  border: 1.5px solid var(--green-dark);
+  background: rgba(241, 233, 231, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: background var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
-.about-faq-item h3 {
+.about-faq-item[open] {
+  background: rgba(241, 233, 231, 0.75);
+  box-shadow: 3px 3px 0 rgba(26, 45, 20, 0.06),
+              6px 6px 0 rgba(26, 45, 20, 0.03);
+}
+
+/* Summary (question) */
+.about-faq-item summary {
   font-family: var(--font-display);
   font-size: var(--text-base);
   color: var(--green-dark);
-  margin-bottom: var(--space-2);
   font-weight: 400;
+  padding: var(--space-4) var(--space-5);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
+.about-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Custom arrow indicator */
+.about-faq-item summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--green-dark);
+  border-bottom: 2px solid var(--green-dark);
+  transform: rotate(-45deg);
+  transition: transform 0.25s var(--ease-out);
+  flex-shrink: 0;
+}
+
+.about-faq-item[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.about-faq-item summary:hover {
+  color: var(--accent);
+}
+
+.about-faq-item summary:hover::after {
+  border-color: var(--accent);
+}
+
+/* Answer text */
 .about-faq-item p {
   font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--text-muted);
   line-height: 1.7;
+  padding: 0 var(--space-5) var(--space-4);
+  text-align: left;
 }
 
 /* ---- About page footer ---- */
