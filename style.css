@@ -74,14 +74,39 @@
 }
 
 /* ---- Welcome text ---- */
+/* SEO heading — visible but subtle, blends with the page */
+.hub-h1 {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--text-faint);
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-1);
+  opacity: 0.6;
+}
+
 .hub-welcome {
   font-family: var(--font-display);
   font-size: var(--text-xl);
   color: var(--green-dark);
   text-align: center;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
   line-height: 1.4;
   max-width: 400px;
+}
+
+/* Keyword tagline — small, muted, visible for SEO/GEO */
+.hub-tagline {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  text-align: center;
+  max-width: 380px;
+  line-height: 1.5;
+  margin-bottom: var(--space-4);
+  opacity: 0.55;
 }
 
 /* ---- Floating card area ---- */

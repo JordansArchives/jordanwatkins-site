@@ -1,0 +1,35 @@
+# Jordan's Archives — jordanwatkins.xyz
+# Allow all search engines and AI crawlers
+
+User-agent: *
+Allow: /
+
+# AI Search Engine Crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Disallow admin page
+Disallow: /admin.html
+
+Sitemap: https://jordanwatkins.xyz/sitemap.xml
