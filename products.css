@@ -1,0 +1,169 @@
+/* ========================================
+   PRODUCTS PAGE
+   Basket-centered layout with floating product icons
+   Matches hub page pattern (full viewport, paper texture)
+   ======================================== */
+
+.products-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--space-8) var(--space-8) var(--space-12);
+  background: transparent;
+  position: relative;
+  z-index: 3;
+}
+
+/* ---- Back button (matches about page) ---- */
+.products-back {
+  position: fixed;
+  top: var(--space-6);
+  left: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  z-index: 10;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.products-back:hover {
+  color: var(--accent);
+}
+
+.products-back svg {
+  flex-shrink: 0;
+}
+
+/* ---- Page heading ---- */
+.products-title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 400;
+  color: var(--green-dark);
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: var(--space-1);
+}
+
+.products-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: var(--space-12);
+  opacity: 0.5;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Basket area ---- */
+/* The basket sits at the bottom as a stage.
+   Product icons will float in the space above it. */
+.products-basket-area {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+.products-basket-img {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+/* ---- Product icons (positioned around/in the basket) ---- */
+.product-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--duration-normal) var(--ease-spring);
+  z-index: 10;
+}
+
+.product-icon:hover {
+  transform: scale(1.08) translateY(-4px);
+}
+
+.product-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Positioning zones for each product icon */
+/* These will be adjusted once icon assets are ready */
+.product-icon--vault {
+  width: 120px;
+  height: 120px;
+  top: -10%;
+  right: 10%;
+}
+
+.product-icon--plugin {
+  width: 100px;
+  height: 100px;
+  top: -15%;
+  left: 25%;
+}
+
+.product-icon--arkives {
+  width: 110px;
+  height: 110px;
+  top: 5%;
+  left: 5%;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .products-page {
+    padding: var(--space-16) var(--space-4) var(--space-16);
+  }
+
+  .products-title {
+    font-size: var(--text-2xl);
+  }
+
+  .products-subtitle {
+    margin-bottom: var(--space-8);
+  }
+
+  .products-basket-img {
+    max-width: 340px;
+  }
+
+  .product-icon--vault,
+  .product-icon--plugin,
+  .product-icon--arkives {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-basket-img {
+    max-width: 280px;
+  }
+
+  .product-icon--vault,
+  .product-icon--plugin,
+  .product-icon--arkives {
+    width: 60px;
+    height: 60px;
+  }
+}

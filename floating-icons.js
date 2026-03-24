@@ -14,6 +14,7 @@
   // Page detection
   var isToolsPage = !!document.querySelector('.tools-layout');
   var isHomePage = !!document.querySelector('.hub-page');
+  var isProductsPage = !!document.querySelector('.products-page');
 
   // Icon definitions with position (% of viewport), depth layer, and rotation
   // depth: 0 = far back (small, blurry), 1 = mid, 2 = foreground (large, sharp)
@@ -33,7 +34,7 @@
     { src: 'icon-film.png',      x: 20,  y: 56,  depth: 0, rot: -12,  size: 80  },
     { src: 'icon-camera.png',    x: 7,   y: 78,  depth: 2, rot: 4,    size: 110 },
     { src: 'icon-vinyl.png',     x: 78,  y: 66,  depth: 0, rot: -8,   size: 100 },
-    { src: 'icon-books.png',     x: 55,  y: 82,  depth: 1, rot: 6,    size: 90, link: 'blog.html', label: 'secret-blogs-label.png' },
+    { src: 'icon-books.png',     x: 55,  y: 82,  depth: 1, rot: 6,    size: 90, link: 'blog.html', label: 'secret-blogs-label.png', productsX: 75 },
   ];
 
   // Depth config: scale multiplier, blur amount, opacity, z-index, drift speed
@@ -72,12 +73,13 @@
 
     var displaySize = Math.round(icon.size * cfg.scale * mobileScale);
     var adjustedY = icon.y;
+    var adjustedX = (isProductsPage && icon.productsX !== undefined) ? icon.productsX : icon.x;
 
     // Shift all icons down 50px from their base position
     var isLinked = isLinkedOnThisPage;
     el.style.cssText = [
       'position: absolute',
-      'left: ' + icon.x + '%',
+      'left: ' + adjustedX + '%',
       'top: calc(' + adjustedY + '% + 50px)',
       'width: ' + displaySize + 'px',
       'height: ' + displaySize + 'px',
