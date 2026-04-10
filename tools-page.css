@@ -88,10 +88,10 @@
 /* Card icon — squared */
 .tools-layout .tool-card-icon {
   border-radius: 0;
-  border: 1px solid var(--border);
+  border: 2px solid var(--green-dark);
   background: rgba(241, 233, 231, 0.5);
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
 }
 
 .tools-layout .tool-card:hover .tool-card-icon {
@@ -174,10 +174,21 @@
   font-family: var(--font-display);
 }
 
-/* ---- Card grid on tools page — 2 columns for fewer items ---- */
+/* ---- Card grid on tools page — 3 col desktop, 2 tablet, 1 mobile ---- */
 .tools-layout .card-grid {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-5);
+}
+
+/* ---- Category icons green (accent red only for Most Used) ---- */
+.tools-layout .category-icon svg {
+  stroke: var(--green-dark);
+  fill: none;
+}
+
+.tools-layout .category-icon-red svg {
+  stroke: #a82226;
+  color: #a82226;
 }
 
 /* ========================================
@@ -707,6 +718,12 @@
 /* ==============================
    RESPONSIVE
    ============================== */
+@media (max-width: 1024px) {
+  .tools-layout .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .tools-layout .card-grid {
     grid-template-columns: 1fr;

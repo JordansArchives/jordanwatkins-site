@@ -1,149 +1,203 @@
 /* ========================================
-   CURSOR-TRAIL.JS — Custom cursor
-   Inspired by colelee.art: filled dot with
-   mix-blend-mode difference + trailing ring.
+   CURSOR-TRAIL.JS — Custom spring cursor
+   Single filled circle with spring physics,
+   magnetic snap + squash/stretch on hub cards.
+   mix-blend-mode: difference for color inversion.
    Desktop only — hidden on touch devices.
    ======================================== */
 
 (function () {
   'use strict';
 
-  // Skip on touch/mobile devices
+  // Skip on touch/mobile
   var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
   var isMobile = window.matchMedia('(hover: none)').matches || window.innerWidth <= 768;
   if (isTouch || isMobile) return;
 
-  // Create the inner dot — small filled circle, inverts colors
-  var dot = document.createElement('div');
-  dot.className = 'cursor-dot';
-  dot.style.cssText = [
+  // ---- Config ----
+  var DEFAULT_SIZE = 30;
+  var HOVER_SIZE = 50;
+  var MAGNETIC_PULL = 0.1;
+  var SPRING_CONFIG = { stiffness: 300, damping: 20, mass: 0.5 };
+
+  // Only hub cards get the sticky/magnetic snap behavior
+  var STICKY = '.hub-card';
+
+  // ---- Spring physics ----
+  function Spring(config) {
+    this.k = config.stiffness;
+    this.d = config.damping;
+    this.m = config.mass;
+    this.pos = 0;
+    this.vel = 0;
+    this.target = 0;
+  }
+
+  Spring.prototype.set = function (target) {
+    this.target = target;
+  };
+
+  Spring.prototype.snap = function (value) {
+    this.pos = value;
+    this.vel = 0;
+    this.target = value;
+  };
+
+  Spring.prototype.update = function (dt) {
+    var displacement = this.pos - this.target;
+    var force = -this.k * displacement - this.d * this.vel;
+    this.vel += (force / this.m) * dt;
+    this.pos += this.vel * dt;
+  };
+
+  // ---- Helpers ----
+  function mapRange(value, inMin, inMax, outMin, outMax) {
+    var t = Math.min(Math.max((value - inMin) / (inMax - inMin), 0), 1);
+    return outMin + t * (outMax - outMin);
+  }
+
+  // ---- Create cursor element ----
+  var cursor = document.createElement('div');
+  cursor.className = 'cursor-dot';
+  cursor.style.cssText = [
     'position: fixed',
     'top: 0',
     'left: 0',
-    'width: 8px',
-    'height: 8px',
-    'background: var(--green-dark, #1a2d14)',
+    'width: ' + DEFAULT_SIZE + 'px',
+    'height: ' + DEFAULT_SIZE + 'px',
+    'background: #49C7A0',
     'border-radius: 50%',
     'pointer-events: none',
     'z-index: 9999',
     'opacity: 0',
     'mix-blend-mode: difference',
-    'transform: translate(-50%, -50%)',
     'will-change: transform',
-    'transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease',
+    'transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease',
   ].join(';');
-  document.body.appendChild(dot);
+  document.body.appendChild(cursor);
 
-  // Create the outer ring — larger hollow circle, trails behind
-  var ring = document.createElement('div');
-  ring.className = 'cursor-ring';
-  ring.style.cssText = [
-    'position: fixed',
-    'top: 0',
-    'left: 0',
-    'width: 40px',
-    'height: 40px',
-    'border: 1px solid var(--green-dark, #1a2d14)',
-    'border-radius: 50%',
-    'pointer-events: none',
-    'z-index: 9998',
-    'opacity: 0',
-    'transform: translate(-50%, -50%)',
-    'will-change: transform',
-    'transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease, border-color 0.3s ease',
-  ].join(';');
-  document.body.appendChild(ring);
-
-  // Hide native cursor
+  // ---- Cursor-dot styles (no hiding of native cursor) ----
   var style = document.createElement('style');
   style.textContent = [
-    '*, *::before, *::after { cursor: none !important; }',
     '@media (hover: none), (max-width: 768px) {',
-    '  *, *::before, *::after { cursor: auto !important; }',
-    '  .cursor-dot, .cursor-ring { display: none !important; }',
+    '  .cursor-dot { display: none !important; }',
     '}',
   ].join('\n');
   document.head.appendChild(style);
 
+  // ---- State ----
+  var springX = new Spring(SPRING_CONFIG);
+  var springY = new Spring(SPRING_CONFIG);
   var mouseX = 0;
   var mouseY = 0;
-  var dotX = 0;
-  var dotY = 0;
-  var ringX = 0;
-  var ringY = 0;
   var visible = false;
+  var hoveredEl = null;
+  var size = DEFAULT_SIZE;
+  var angle = 0;
+  var scaleX = 1;
+  var scaleY = 1;
 
+  // ---- Mouse events ----
   document.addEventListener('mousemove', function (e) {
     mouseX = e.clientX;
     mouseY = e.clientY;
     if (!visible) {
       visible = true;
-      dot.style.opacity = '1';
-      ring.style.opacity = '0.4';
+      springX.snap(mouseX - size / 2);
+      springY.snap(mouseY - size / 2);
+      cursor.style.opacity = '1';
     }
   });
 
   document.addEventListener('mouseleave', function () {
     visible = false;
-    dot.style.opacity = '0';
-    ring.style.opacity = '0';
+    cursor.style.opacity = '0';
   });
 
   document.addEventListener('mouseenter', function () {
     if (mouseX > 0 || mouseY > 0) {
       visible = true;
-      dot.style.opacity = '1';
-      ring.style.opacity = '0.4';
+      cursor.style.opacity = '1';
     }
   });
 
-  // Hover detection — grow on interactive elements
-  var hovering = false;
-
+  // ---- Hover detection (sticky only on hub cards) ----
   document.addEventListener('mouseover', function (e) {
-    var target = e.target.closest('a, button, [role="button"], input, textarea, select, label[for], .card, .hub-card, .sidebar-link, .tool-card');
-    if (target && !hovering) {
-      hovering = true;
-      dot.style.width = '16px';
-      dot.style.height = '16px';
-      ring.style.width = '60px';
-      ring.style.height = '60px';
-      ring.style.borderColor = 'var(--red, #a82226)';
-      ring.style.opacity = '0.3';
+    var target = e.target.closest(STICKY);
+    if (target) {
+      hoveredEl = target;
+      size = HOVER_SIZE;
+      cursor.style.width = HOVER_SIZE + 'px';
+      cursor.style.height = HOVER_SIZE + 'px';
     }
   });
 
   document.addEventListener('mouseout', function (e) {
-    var target = e.target.closest('a, button, [role="button"], input, textarea, select, label[for], .card, .hub-card, .sidebar-link, .tool-card');
-    if (target && hovering) {
-      // Check if we're still inside another interactive element
+    var target = e.target.closest(STICKY);
+    if (target) {
       var related = e.relatedTarget;
-      if (related && related.closest && related.closest('a, button, [role="button"], input, textarea, select, label[for], .card, .hub-card, .sidebar-link, .tool-card')) {
+      if (related && related.closest && related.closest(STICKY)) {
+        hoveredEl = related.closest(STICKY);
         return;
       }
-      hovering = false;
-      dot.style.width = '8px';
-      dot.style.height = '8px';
-      ring.style.width = '40px';
-      ring.style.height = '40px';
-      ring.style.borderColor = 'var(--green-dark, #1a2d14)';
-      ring.style.opacity = '0.4';
+      hoveredEl = null;
+      size = DEFAULT_SIZE;
+      cursor.style.width = DEFAULT_SIZE + 'px';
+      cursor.style.height = DEFAULT_SIZE + 'px';
     }
   });
 
-  // Animation loop — lerp for smooth trailing
-  function animate() {
-    // Dot: 20% lerp — snappy but smooth
-    dotX += (mouseX - dotX) * 0.2;
-    dotY += (mouseY - dotY) * 0.2;
-    // Ring: 8% lerp — lazy, floaty trail
-    ringX += (mouseX - ringX) * 0.08;
-    ringY += (mouseY - ringY) * 0.08;
+  // ---- Animation loop ----
+  var lastTime = 0;
 
-    dot.style.transform = 'translate(calc(-50% + ' + dotX.toFixed(1) + 'px), calc(-50% + ' + dotY.toFixed(1) + 'px))';
-    ring.style.transform = 'translate(calc(-50% + ' + ringX.toFixed(1) + 'px), calc(-50% + ' + ringY.toFixed(1) + 'px))';
+  function animate(time) {
+    // Delta time in seconds, capped to prevent spiral on tab-switch
+    var dt = lastTime ? Math.min((time - lastTime) / 1000, 0.05) : 1 / 60;
+    lastTime = time;
+
+    if (hoveredEl) {
+      // Sticky mode: magnetic snap + squash/stretch
+      var rect = hoveredEl.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+      var ox = mouseX - cx;
+      var oy = mouseY - cy;
+
+      // Target: element center + small % of mouse offset
+      springX.set(cx + MAGNETIC_PULL * ox - size / 2);
+      springY.set(cy + MAGNETIC_PULL * oy - size / 2);
+
+      // Rotate toward mouse direction
+      angle = Math.atan2(oy, ox);
+
+      // Squash/stretch based on distance from center
+      var dist = Math.max(Math.abs(ox), Math.abs(oy));
+      scaleX = mapRange(dist, 0, rect.height / 2, 1, 1.3);
+      scaleY = mapRange(dist, 0, rect.width / 2, 1, 0.8);
+    } else {
+      // Normal mode: follow mouse
+      springX.set(mouseX - size / 2);
+      springY.set(mouseY - size / 2);
+
+      // Ease transforms back to neutral
+      scaleX += (1 - scaleX) * 0.15;
+      scaleY += (1 - scaleY) * 0.15;
+      angle *= 0.85;
+    }
+
+    // Step spring physics
+    springX.update(dt);
+    springY.update(dt);
+
+    // Apply transform
+    cursor.style.transform =
+      'translate(' + springX.pos.toFixed(1) + 'px, ' + springY.pos.toFixed(1) + 'px)' +
+      ' rotate(' + angle.toFixed(3) + 'rad)' +
+      ' scaleX(' + scaleX.toFixed(3) + ')' +
+      ' scaleY(' + scaleY.toFixed(3) + ')';
 
     requestAnimationFrame(animate);
   }
+
   requestAnimationFrame(animate);
 })();
