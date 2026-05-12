@@ -63,7 +63,7 @@
 
 /* ---- Basket area ---- */
 /* The basket sits at the bottom as a stage.
-   Product icons will float in the space above it. */
+   Product icons float in the space above it (positioned by products-float.js). */
 .products-basket-area {
   position: relative;
   width: 100%;
@@ -71,7 +71,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  min-height: 50vh;
+  min-height: 60vh;
 }
 
 .products-basket-img {
@@ -81,21 +81,19 @@
   user-select: none;
   -webkit-user-select: none;
   pointer-events: none;
+  position: relative;
+  z-index: 1;
 }
 
-/* ---- Product icons (positioned around/in the basket) ---- */
+/* ---- Product icons (size + style; positioning handled by products-float.js) ---- */
 .product-icon {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform var(--duration-normal) var(--ease-spring);
+  display: block;
+  cursor: grab;
   z-index: 10;
 }
 
-.product-icon:hover {
-  transform: scale(1.08) translateY(-4px);
+.product-icon:active {
+  cursor: grabbing;
 }
 
 .product-icon img {
@@ -104,29 +102,8 @@
   object-fit: contain;
   user-select: none;
   -webkit-user-select: none;
-}
-
-/* Positioning zones for each product icon */
-/* These will be adjusted once icon assets are ready */
-.product-icon--vault {
-  width: 120px;
-  height: 120px;
-  top: -10%;
-  right: 10%;
-}
-
-.product-icon--plugin {
-  width: 100px;
-  height: 100px;
-  top: -15%;
-  left: 25%;
-}
-
-.product-icon--arkives {
-  width: 110px;
-  height: 110px;
-  top: 5%;
-  left: 5%;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
 /* ---- Responsive ---- */
@@ -146,24 +123,10 @@
   .products-basket-img {
     max-width: 340px;
   }
-
-  .product-icon--vault,
-  .product-icon--plugin,
-  .product-icon--arkives {
-    width: 80px;
-    height: 80px;
-  }
 }
 
 @media (max-width: 480px) {
   .products-basket-img {
     max-width: 280px;
-  }
-
-  .product-icon--vault,
-  .product-icon--plugin,
-  .product-icon--arkives {
-    width: 60px;
-    height: 60px;
   }
 }

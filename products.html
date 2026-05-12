@@ -102,25 +102,19 @@
   <p class="products-subtitle">things i've built for creators</p>
 
   <!-- Basket container with floating product icons -->
-  <div class="products-basket-area">
+  <div class="products-basket-area" id="productsFloatArea">
 
     <!-- The basket image -->
     <img src="basket.png" alt="Hand-drawn shopping basket illustration" class="products-basket-img">
 
-    <!-- Product icons float in/around the basket -->
-    <!-- Icons will be added here once assets are ready -->
-    <!-- Each will be an <a> linking to the product's detail page -->
-    <!--
-    <a href="#" class="product-icon product-icon--vault" aria-label="Editing Vault">
-      <img src="" alt="Editing Vault">
+    <!-- Floating product icons (drift + drag, matches homepage hub-card behavior) -->
+    <a href="https://www.shop.jordanwatkins.xyz/" class="product-icon product-icon--plugin" data-float-index="0" aria-label="Hand-Drawn Animator Plug-in">
+      <img src="product-plugin.png" alt="Hand-Drawn Animator Plug-in" draggable="false">
     </a>
-    <a href="#" class="product-icon product-icon--plugin" aria-label="Hand-Drawn Text Animator">
-      <img src="" alt="Hand-Drawn Text Animator Plugin">
+
+    <a href="https://stan.store/JordansArchivess/p/get-my-viral-editing-vault" class="product-icon product-icon--vault" data-float-index="1" aria-label="Viral Editing Pack">
+      <img src="product-vault.png" alt="Viral Editing Pack" draggable="false">
     </a>
-    <a href="https://arkives.xyz" class="product-icon product-icon--arkives" aria-label="Arkives CRM">
-      <img src="" alt="Arkives CRM">
-    </a>
-    -->
 
   </div>
 
@@ -150,6 +144,8 @@
 
 <!-- Paper texture animation script -->
 <script src="paper-texture.js"></script>
+<!-- Floating + drag behavior for product icons -->
+<script src="products-float.js"></script>
 <!-- Smooth cursor trail -->
 <script src="cursor-trail.js"></script>
 </body>
