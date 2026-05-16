@@ -32,4 +32,8 @@ Allow: /
 # Disallow admin page
 Disallow: /admin.html
 
+# Disallow private campaigns page (direct-link only)
+Disallow: /campaigns
+Disallow: /campaigns.html
+
 Sitemap: https://jordanwatkins.xyz/sitemap.xml

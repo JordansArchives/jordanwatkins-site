@@ -1,0 +1,317 @@
+/* ========================================
+   CAMPAIGNS.CSS — Case study page (private, direct-link only)
+   Inherits paper bg + floating icons + cursor from homepage system.
+   Card pattern: two-tone "exhibition label" — dark header strip
+   holds the brand logo, cream data plate holds everything else.
+   Stacked offset shadow from .hub-card for the floating feel.
+   ======================================== */
+
+/* Let paper-texture canvas + floating-icons layer show through */
+body {
+  background: transparent;
+}
+
+/* ==============================
+   BACK TO HOME (universal pattern)
+   Matches .about-back / .products-back idiom across site
+   ============================== */
+.campaigns-back {
+  position: fixed;
+  top: var(--space-6);
+  left: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  z-index: 10;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.campaigns-back:hover {
+  color: var(--accent);
+}
+
+.campaigns-back svg {
+  flex-shrink: 0;
+}
+
+.campaigns {
+  position: relative;
+  z-index: 3;            /* sit above paper-texture (0) + floating icons (1) */
+  max-width: 1100px;
+  margin: 0 auto;
+  /* Bottom padding accounts for the fixed .hub-footer (desktop) */
+  padding: var(--space-12) var(--space-6) var(--space-20);
+}
+
+/* ==============================
+   HERO
+   ============================== */
+.campaigns-hero {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.campaigns-hero__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-4xl);
+  color: var(--green-dark);
+  line-height: 1.1;
+  margin-bottom: var(--space-3);
+}
+
+.campaigns-hero__lede {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-muted);
+  max-width: 36rem;
+  margin: 0 auto var(--space-8);
+  line-height: 1.6;
+}
+
+.campaigns-hero__stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-10);
+  flex-wrap: wrap;
+}
+
+.campaigns-hero__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.campaigns-hero__stat strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-3xl);
+  color: var(--green-dark);
+}
+
+.campaigns-hero__stat span {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+/* ==============================
+   CARDS GRID
+   ============================== */
+.campaigns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: var(--space-8);
+  margin-bottom: var(--space-16);
+}
+
+.campaigns-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--text-faint);
+  padding: var(--space-16) 0;
+}
+
+/* ==============================
+   CAMPAIGN CARD — two-tone exhibition label
+   - Outer: 1.5px green-dark border + stacked offset shadow
+   - Top zone (.campaign-card__logo): green-dark fill, white wordmark
+   - Bottom zone (.campaign-card__body): beige fill, green-dark type
+   - Sharp 1.5px green-dark divider between zones
+   - No hover transforms (read-only proof page)
+   ============================== */
+.campaign-card {
+  position: relative;
+  background: var(--beige);
+  color: var(--green-dark);
+  border: 1.5px solid var(--green-dark);
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  /* Stacked offset shadow — same idiom as .hub-card */
+  box-shadow:
+    4px 4px 0 rgba(26, 45, 20, 0.12),
+    8px 8px 0 rgba(26, 45, 20, 0.06),
+    12px 12px 0 rgba(26, 45, 20, 0.03);
+}
+
+/* --- Top zone: dark header strip with logo --- */
+.campaign-card__logo {
+  background: var(--green-dark);
+  padding: var(--space-5) var(--space-6);
+  margin: 0;
+  height: auto;
+  border-bottom: 1.5px solid var(--green-dark);
+  display: flex;
+  align-items: center;
+}
+
+.campaign-card__logo img {
+  max-height: 2rem;
+  width: auto;
+  /* Brand SVGs should ship with fill="white" or "currentColor" so they
+     render directly on green-dark. For dark-only brand logos, apply
+     filter: brightness(0) invert(1) at the per-brand override level. */
+}
+
+/* Fallback when no logo SVG is available — beige wordmark on dark strip */
+.campaign-card__brand-wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-2xl);
+  letter-spacing: 0.18em;
+  color: var(--beige);
+  text-transform: uppercase;
+}
+
+/* --- Bottom zone: data plate --- */
+.campaign-card__body {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.campaign-card__descriptor {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--green-dark);
+  opacity: 0.6;
+  line-height: 1.5;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgba(26, 45, 20, 0.15);
+}
+
+/* --- Stats grid (2x2) --- */
+.campaign-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4) var(--space-5);
+  margin-top: var(--space-1);
+}
+
+.campaign-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.campaign-card__stat dt {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;          /* ~11px small-caps feel */
+  font-weight: 500;
+  color: var(--green-dark);
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.campaign-card__stat dd {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-2xl);
+  color: var(--green-dark);
+  line-height: 1.1;
+}
+
+/* --- Conversion callout — between hairlines, italic serif, red accent --- */
+.campaign-card__conversion {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--green-dark);
+  text-align: center;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--green-dark);
+  border-bottom: 1px solid var(--green-dark);
+}
+
+.campaign-card__conversion strong {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--red);
+}
+
+/* --- CTA link --- */
+.campaign-card__link {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--green-dark);
+  letter-spacing: 0.02em;
+  margin-top: var(--space-1);
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.campaign-card__link:hover {
+  opacity: 0.7;
+}
+
+/* --- Testimonial (only renders when present) --- */
+.campaign-card__quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-base);
+  line-height: 1.5;
+  padding: var(--space-4);
+  background: rgba(26, 45, 20, 0.05);
+  border-left: 2px solid var(--green-dark);
+  color: var(--green-dark);
+}
+
+.campaign-card__quote cite {
+  display: block;
+  font-style: normal;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  opacity: 0.65;
+  margin-top: var(--space-2);
+}
+
+/* ==============================
+   RESPONSIVE
+   ============================== */
+@media (max-width: 768px) {
+  .campaigns {
+    padding: var(--space-8) var(--space-4) var(--space-12);
+  }
+
+  .campaigns-hero__title {
+    font-size: var(--text-3xl);
+  }
+
+  .campaigns-hero__stats {
+    gap: var(--space-6);
+  }
+
+  .campaigns-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .campaign-card__logo {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .campaign-card__body {
+    padding: var(--space-5);
+  }
+
+  /* Reduce shadow offset on small screens to avoid horizontal overflow */
+  .campaign-card {
+    box-shadow:
+      3px 3px 0 rgba(26, 45, 20, 0.12),
+      6px 6px 0 rgba(26, 45, 20, 0.06);
+  }
+}
