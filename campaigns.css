@@ -164,6 +164,13 @@ body {
      filter: brightness(0) invert(1) at the per-brand override level. */
 }
 
+/* Per-brand logo size overrides (when a logo's intrinsic proportions
+   render too large at the default 2rem cap). */
+.campaign-card[data-brand="adobe-max-2025"] .campaign-card__logo img,
+.campaign-card[data-brand="alterd"] .campaign-card__logo img {
+  max-height: 1.4rem;
+}
+
 /* Fallback when no logo SVG is available — beige wordmark on dark strip */
 .campaign-card__brand-wordmark {
   font-family: var(--font-display);
