@@ -102,6 +102,107 @@ body {
 }
 
 /* ==============================
+   KPI FILTER
+   Native <select> dressed like a campaign card: solid beige fill,
+   1.5px green-dark border, stacked offset shadow. Fully opaque so it
+   reads clearly over the paper texture. Built by campaigns.js; stays
+   hidden until JS fills it.
+   ============================== */
+.kpi-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-10);
+}
+
+.kpi-filter[hidden] {
+  display: none;
+}
+
+.kpi-filter__label {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--green-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.kpi-filter__control {
+  position: relative;
+  min-width: 16rem;
+}
+
+.kpi-filter__select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-height: 44px;                 /* comfortable tap target */
+  padding: var(--space-2) var(--space-10) var(--space-2) var(--space-4);
+  background: var(--beige);
+  border: 1.5px solid var(--green-dark);
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);      /* 16px stops iOS zooming on focus */
+  font-weight: 500;
+  color: var(--green-dark);
+  cursor: pointer;
+  box-shadow:
+    3px 3px 0 rgba(26, 45, 20, 0.12),
+    6px 6px 0 rgba(26, 45, 20, 0.06);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.kpi-filter__select:hover {
+  background: var(--bg-surface);
+}
+
+.kpi-filter__select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Active filter: dark fill, same as the card logo strip */
+.kpi-filter.is-active .kpi-filter__select {
+  background: var(--green-dark);
+  color: var(--beige);
+}
+
+.kpi-filter__select option {
+  background: var(--beige);
+  color: var(--green-dark);
+}
+
+.kpi-filter__chevron {
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  transform: translateY(-50%);
+  color: var(--green-dark);
+  pointer-events: none;
+}
+
+.kpi-filter.is-active .kpi-filter__chevron {
+  color: var(--beige);
+}
+
+/* Card hidden by the filter (overrides .campaign-card display: flex) */
+.campaign-card[hidden] {
+  display: none;
+}
+
+/* Stat matching the active KPI: red value, full-strength label */
+.campaign-card__stat.is-highlighted dt {
+  opacity: 0.85;
+}
+
+.campaign-card__stat.is-highlighted dd {
+  color: var(--red);
+}
+
+/* ==============================
    CARDS GRID
    ============================== */
 .campaigns-grid {
@@ -334,6 +435,17 @@ body {
 
   .campaigns-hero__stats {
     gap: var(--space-6);
+  }
+
+  .kpi-filter {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+  }
+
+  .kpi-filter__control {
+    min-width: 0;
   }
 
   .campaigns-grid {
