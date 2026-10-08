@@ -159,9 +159,20 @@ body {
   background: var(--bg-surface);
 }
 
-.kpi-filter__select:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+.kpi-filter__select {
+  -webkit-tap-highlight-color: transparent;   /* no grey/blue flash on tap */
+}
+
+.kpi-filter__select:focus {
+  outline: none;
+}
+
+/* Focus ring for keyboard users only (touch taps leave no ring) */
+@media (hover: hover) {
+  .kpi-filter__select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
 }
 
 /* Active filter: dark fill, same as the card logo strip */
