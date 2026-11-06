@@ -1,14 +1,28 @@
 /* ========================================
    CAMPAIGNS.CSS — Case study page (private, direct-link only)
-   Inherits paper bg + floating icons + cursor from homepage system.
-   Card pattern: two-tone "exhibition label" — dark header strip
-   holds the brand logo, cream data plate holds everything else.
+   Inherits paper bg + cursor from homepage system (no floating icons
+   here: the deck is the only moving thing on the page).
+   Cards are two-sided "exhibition labels" dealt into a 3D fan:
+   front = dark logo strip + campaign video, back = brief + numbers.
    Stacked offset shadow from .hub-card for the floating feel.
    ======================================== */
 
-/* Let paper-texture canvas + floating-icons layer show through */
+/* Let the paper-texture canvas show through. clip (not hidden) stops
+   the deck's parked off-edge cards from adding a horizontal scrollbar
+   without turning body into a scroll container. */
 body {
   background: transparent;
+  overflow-x: clip;
+}
+
+/* The fixed footer is a transparent full-width bar above the page.
+   Let clicks pass through it to the cards; only its links catch them. */
+.hub-footer {
+  pointer-events: none;
+}
+
+.hub-footer a {
+  pointer-events: auto;
 }
 
 /* ==============================
@@ -39,11 +53,11 @@ body {
 
 .campaigns {
   position: relative;
-  z-index: 3;            /* sit above paper-texture (0) + floating icons (1) */
+  z-index: 3;            /* sit above paper-texture (0) */
   max-width: 1100px;
   margin: 0 auto;
   /* Bottom padding accounts for the fixed .hub-footer (desktop) */
-  padding: var(--space-12) var(--space-6) var(--space-20);
+  padding: var(--space-10) var(--space-6) var(--space-20);
 }
 
 /* ==============================
@@ -51,13 +65,14 @@ body {
    ============================== */
 .campaigns-hero {
   text-align: center;
-  margin-bottom: var(--space-12);
+  margin-bottom: var(--space-8);
 }
 
 .campaigns-hero__title {
-  font-family: var(--font-display);
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-weight: 700;
   font-size: var(--text-4xl);
+  letter-spacing: -0.01em;
   color: var(--green-dark);
   line-height: 1.1;
   margin-bottom: var(--space-3);
@@ -68,14 +83,15 @@ body {
   font-size: var(--text-base);
   color: var(--text-muted);
   max-width: 36rem;
-  margin: 0 auto var(--space-8);
+  margin: 0 auto var(--space-6);
   line-height: 1.6;
+  text-wrap: balance;
 }
 
 .campaigns-hero__stats {
   display: flex;
   justify-content: center;
-  gap: var(--space-10);
+  gap: var(--space-16);
   flex-wrap: wrap;
 }
 
@@ -89,13 +105,14 @@ body {
 .campaigns-hero__stat strong {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: var(--text-3xl);
-  color: var(--green-dark);
+  font-size: var(--text-hero);
+  line-height: 1;
+  color: var(--red);
 }
 
 .campaigns-hero__stat span {
   font-family: var(--font-body);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--text-faint);
   letter-spacing: 0.04em;
   text-transform: lowercase;
@@ -113,7 +130,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-10);
+  margin-bottom: var(--space-6);
 }
 
 .kpi-filter[hidden] {
@@ -155,8 +172,10 @@ body {
   transition: background var(--duration-fast) var(--ease-out);
 }
 
-.kpi-filter__select:hover {
-  background: var(--bg-surface);
+@media (hover: hover) {
+  .kpi-filter__select:hover {
+    background: var(--bg-surface);
+  }
 }
 
 .kpi-filter__select {
@@ -199,9 +218,9 @@ body {
   color: var(--beige);
 }
 
-/* Card hidden by the filter (overrides .campaign-card display: flex) */
+/* Card hidden by the filter (overrides the deck's display rules) */
 .campaign-card[hidden] {
-  display: none;
+  display: none !important;
 }
 
 /* Stat matching the active KPI: red value, full-strength label */
@@ -214,109 +233,549 @@ body {
 }
 
 /* ==============================
-   CARDS GRID
+   DECK
+   Every card sits in the same grid cell; campaigns.js fans them out
+   in 3D around the active one with a transform per card. The stage
+   owns the perspective so the whole fan shares one vanishing point.
+   Without JS (no .is-ready) the cards stack in a plain column.
    ============================== */
-.campaigns-grid {
+.campaigns-deck {
+  --card-w: clamp(300px, 34vw, 460px);
+  --card-ratio: 4 / 3;           /* landscape */
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  justify-items: center;
   gap: var(--space-8);
-  margin-bottom: var(--space-16);
+  perspective: 1400px;
+  perspective-origin: 50% 40%;
+  outline: none;
 }
 
-.campaigns-empty {
-  grid-column: 1 / -1;
-  text-align: center;
-  font-family: var(--font-body);
-  color: var(--text-faint);
-  padding: var(--space-16) 0;
+.campaigns-deck.is-ready {
+  /* Full-bleed stage clipped to the screen: side cards (and the hidden
+     ones waiting past each edge) never widen the page. Without this,
+     phones and tablets zoom the whole page out to fit the overflow.
+     --sbw is the desktop scrollbar width, measured by campaigns.js. */
+  width: calc(100vw - var(--sbw, 0px));
+  margin-inline: calc(50% - (100vw - var(--sbw, 0px)) / 2);
+  overflow-x: clip;
+  gap: 0;
+  padding: var(--space-4) 0 var(--space-6);
+  touch-action: pan-y;           /* vertical page scroll stays native */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.campaigns-deck.is-ready > .campaign-card {
+  grid-area: 1 / 1;
+}
+
+@media (hover: hover) {
+  .campaigns-deck:focus-visible {
+    outline: 2px dashed var(--accent);
+    outline-offset: var(--space-4);
+  }
 }
 
 /* ==============================
-   CAMPAIGN CARD — two-tone exhibition label
-   - Outer: 1.5px green-dark border + stacked offset shadow
-   - Top zone (.campaign-card__logo): green-dark fill, white wordmark
-   - Bottom zone (.campaign-card__body): beige fill, green-dark type
-   - Sharp 1.5px green-dark divider between zones
-   - No hover transforms (read-only proof page)
+   CAMPAIGN CARD
+   Three layers, each with one job:
+   article          -> position + fade in the fan (set by JS, eased by CSS)
+   __inner          -> pointer tilt + flip (set by JS every frame)
+   __face front/back -> the two printed sides
+   Faces carry the border/shadow so the outline turns with the flip.
    ============================== */
 .campaign-card {
   position: relative;
-  background: var(--beige);
+  width: var(--card-w);
+  transform-style: preserve-3d;
+  transition: transform 700ms var(--ease-out),
+              opacity 700ms var(--ease-out);
+  will-change: transform, opacity;
   color: var(--green-dark);
-  border: 1.5px solid var(--green-dark);
-  padding: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-
-  /* Stacked offset shadow — same idiom as .hub-card */
-  box-shadow:
-    4px 4px 0 rgba(26, 45, 20, 0.12),
-    8px 8px 0 rgba(26, 45, 20, 0.06),
-    12px 12px 0 rgba(26, 45, 20, 0.03);
 }
 
-/* --- Top zone: dark header strip with logo --- */
+.campaigns-deck.is-dragging > .campaign-card,
+.campaign-card.no-ease {
+  transition: none;
+}
+
+.campaigns-deck.is-ready > .campaign-card:not(.is-active) {
+  cursor: pointer;
+}
+
+.campaign-card__inner {
+  position: relative;
+  aspect-ratio: var(--card-ratio);
+  transform-style: preserve-3d;
+}
+
+.campaign-card__face {
+  container: card / inline-size;   /* internals respond to the card's own size */
+  /* --veil (set per card by campaigns.js) washes the face toward the
+     paper. The outline and shadow sit outside what the veil covers, so
+     they fade by the same amount here. */
+  --keep: calc(1 - var(--veil, 0));
+  background: var(--beige);
+  border: 1.5px solid color-mix(in srgb, var(--green-dark) calc(var(--keep) * 100%), var(--beige));
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow:
+    4px 4px 0 rgba(26, 45, 20, calc(0.12 * var(--keep))),
+    8px 8px 0 rgba(26, 45, 20, calc(0.06 * var(--keep))),
+    12px 12px 0 rgba(26, 45, 20, calc(0.03 * var(--keep)));
+  transition: border-color 700ms var(--ease-out),
+              box-shadow 700ms var(--ease-out);
+}
+
+/* Both faces fill the 4:3 frame. campaigns.js swaps which one is
+   visible at the edge-on point of the flip (.shows-back). */
+.campaign-card__front {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.campaign-card__back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+}
+
+.campaign-card__inner.shows-back .campaign-card__back {
+  visibility: visible;
+}
+
+.campaign-card__inner.shows-back .campaign-card__front {
+  visibility: hidden;
+}
+
+/* Without JS there is no flip: front and back stack as two panels */
+.campaigns-deck:not(.is-ready) .campaign-card__inner {
+  aspect-ratio: auto;
+}
+
+.campaigns-deck:not(.is-ready) .campaign-card__front {
+  position: relative;
+  aspect-ratio: var(--card-ratio);
+}
+
+.campaigns-deck:not(.is-ready) .campaign-card__back {
+  position: relative;
+  visibility: visible;
+  margin-top: var(--space-4);
+}
+
+.campaigns-deck:not(.is-ready) .campaign-card__btn--flip {
+  display: none;
+}
+
+/* Side cards fade back into the paper. A veil inside each face, not
+   opacity on the card: opacity would flatten the 3D flip. */
+.campaign-card__face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--beige);
+  opacity: var(--veil, 0);
+  pointer-events: none;
+  transition: opacity 700ms var(--ease-out);
+  z-index: 5;
+}
+
+/* Matte light that follows the pointer on the active card. Soft-light
+   keeps it reading as light on paper rather than a foil shine. */
+.campaign-card__face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at var(--mx, 50%) var(--my, 30%),
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.18) 28%,
+      rgba(255, 255, 255, 0) 60%
+    );
+  mix-blend-mode: soft-light;
+  opacity: var(--sheen, 0);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* --- Logo strip (front) --- */
 .campaign-card__logo {
   background: var(--green-dark);
-  padding: var(--space-5) var(--space-6);
-  margin: 0;
-  height: auto;
-  border-bottom: 1.5px solid var(--green-dark);
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
+  min-height: 3.25rem;
 }
 
 .campaign-card__logo img {
-  max-height: 2rem;
+  max-height: 1.6rem;
   width: auto;
-  /* Brand SVGs should ship with fill="white" or "currentColor" so they
-     render directly on green-dark. For dark-only brand logos, apply
-     filter: brightness(0) invert(1) at the per-brand override level. */
+  /* Brand logos ship white for the green-dark strip. Dark-only logos
+     get filter: brightness(0) invert(1) in a per-brand override. */
 }
 
-/* Per-brand logo size overrides (when a logo's intrinsic proportions
-   render too large at the default 2rem cap). */
+/* Per-brand logo size overrides (logos whose proportions run large) */
 .campaign-card[data-brand="adobe-max-2025"] .campaign-card__logo img,
 .campaign-card[data-brand="alterd"] .campaign-card__logo img {
-  max-height: 1.4rem;
+  max-height: 1.15rem;
 }
 
-/* Fallback when no logo SVG is available — beige wordmark on dark strip */
+/* LG Electronics wordmark (no face mark) is wide and short: cap it a
+   touch lower so it carries the same weight as the other names */
+.campaign-card[data-brand="lg"] .campaign-card__logo img {
+  max-height: 1.1rem;
+}
+
+/* Brand-color logos rendered white on the dark strips */
+.campaign-card[data-brand="anthropic"] .campaign-card__logo img,
+.campaign-card[data-brand="anthropic"] .campaign-card__back-head img,
+.campaign-card[data-brand="lg"] .campaign-card__logo img,
+.campaign-card[data-brand="lg"] .campaign-card__back-head img,
+.campaign-card[data-brand="adobe-premiere"] .campaign-card__logo img,
+.campaign-card[data-brand="adobe-premiere"] .campaign-card__back-head img {
+  filter: brightness(0) invert(1);
+}
+
+/* Fallback when no logo file exists: beige wordmark on the dark strip */
 .campaign-card__brand-wordmark {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   letter-spacing: 0.18em;
   color: var(--beige);
   text-transform: uppercase;
 }
 
-/* --- Bottom zone: data plate --- */
-.campaign-card__body {
-  padding: var(--space-6);
+/* --- Video window (front) --- */
+.campaign-card__media {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: var(--green);
+  overflow: hidden;
+}
+
+.campaign-card__media video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* No video file yet: logo on green with a way through to Instagram */
+.campaign-card__media-empty {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-4);
+  padding: var(--space-6) var(--space-6) var(--space-16);
+  text-align: center;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(241, 233, 231, 0.04) 0 2px,
+      transparent 2px 12px
+    ),
+    var(--green-dark);
+  color: var(--beige);
+}
+
+.campaign-card__media-empty img {
+  max-height: 2.4rem;
+  max-width: 70%;
+  width: auto;
+  opacity: 0.9;
+}
+
+.campaign-card__media-empty p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-sm);
+  opacity: 0.7;
+}
+
+/* --- Foot (front): buttons float on the bottom of the video --- */
+.campaign-card__foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  padding: var(--space-10) var(--space-3) var(--space-3);
+  background: linear-gradient(to top, rgba(26, 45, 20, 0.85) 0%, rgba(26, 45, 20, 0.5) 55%, rgba(26, 45, 20, 0) 100%);
+  pointer-events: none;            /* the gradient itself lets clicks reach the video */
+}
+
+.campaign-card__foot .campaign-card__actions {
+  pointer-events: auto;
 }
 
 .campaign-card__descriptor {
   font-family: var(--font-body);
   font-size: var(--text-sm);
   color: var(--green-dark);
-  opacity: 0.6;
+  opacity: 0.7;
+  line-height: 1.45;
+}
+
+.campaign-card__actions,
+.campaign-card__back-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.campaign-card__actions .campaign-card__btn {
+  min-height: 40px;
+}
+
+.campaign-card__btn {
+  flex: 1;
+  min-height: 44px;
+  padding: var(--space-2);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--green-dark);
+  background: transparent;
+  border: 1.5px solid var(--green-dark);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
+}
+
+.campaign-card__btn--play {
+  background: var(--green-dark);
+  color: var(--beige);
+}
+
+/* On the video: beige play button, outlined flip button */
+.campaign-card__foot .campaign-card__btn--play {
+  background: var(--beige);
+  color: var(--green-dark);
+  border-color: var(--beige);
+}
+
+.campaign-card__foot .campaign-card__btn--flip {
+  color: var(--beige);
+  border-color: rgba(241, 233, 231, 0.75);
+}
+
+@media (hover: hover) {
+  .campaign-card__btn:hover {
+    background: var(--bg-surface);
+  }
+
+  .campaign-card__foot .campaign-card__btn--play:hover {
+    background: var(--bg-surface);
+  }
+
+  .campaign-card__foot .campaign-card__btn--flip:hover {
+    background: rgba(241, 233, 231, 0.12);
+    border-color: var(--beige);
+  }
+}
+
+.campaign-card__btn:focus {
+  outline: none;
+}
+
+.campaign-card__btn:focus-visible,
+.campaign-card__link:focus-visible,
+.campaign-card__quote-toggle > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* --- Vertical video: video column left, label right ---
+   The video column is exactly 9:16 at the card's height, so a
+   vertical file shows whole. campaigns.js adds .is-portrait after
+   reading the file, and builds the __aside from the back's data. */
+.campaign-card.is-portrait .campaign-card__front {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+}
+
+.campaign-card.is-portrait .campaign-card__media {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  height: 100%;
+  aspect-ratio: 9 / 16;
+  border-right: 1.5px solid var(--green-dark);
+}
+
+.campaign-card.is-portrait .campaign-card__logo {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.campaign-card__aside {
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.campaign-card__aside-desc {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--green-dark);
+  opacity: 0.75;
+}
+
+.campaign-card__hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.campaign-card__hero-stat strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-3xl);
+  line-height: 1.05;
+  color: var(--green-dark);
+}
+
+.campaign-card__hero-stat span {
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--green-dark);
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Buttons sit under the label instead of floating on the video */
+.campaign-card.is-portrait .campaign-card__foot {
+  position: static;
+  grid-column: 2;
+  grid-row: 3;
+  padding: 0 var(--space-4) var(--space-4);
+  background: none;
+}
+
+.campaign-card.is-portrait .campaign-card__actions {
+  flex-direction: column;
+}
+
+.campaign-card.is-portrait .campaign-card__foot .campaign-card__btn--play {
+  background: var(--green-dark);
+  color: var(--beige);
+  border-color: var(--green-dark);
+}
+
+.campaign-card.is-portrait .campaign-card__foot .campaign-card__btn--flip {
+  color: var(--green-dark);
+  border-color: var(--green-dark);
+}
+
+@media (hover: hover) {
+  .campaign-card.is-portrait .campaign-card__foot .campaign-card__btn--play:hover {
+    background: var(--green);
+  }
+
+  .campaign-card.is-portrait .campaign-card__foot .campaign-card__btn--flip:hover {
+    background: var(--bg-surface);
+  }
+}
+
+/* --- Back --- */
+.campaign-card__back-head {
+  flex-shrink: 0;
+  background: var(--green-dark);
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 3.25rem;
+}
+
+.campaign-card__back-head img {
+  max-height: 1.25rem;
+  max-width: 55%;
+  width: auto;
+}
+
+.campaign-card__dates {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--beige);
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.campaign-card__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(26, 45, 20, 0.25) transparent;
+}
+
+.campaign-card__work {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.campaign-card__work .campaign-card__descriptor {
+  font-size: var(--text-xs);
+  opacity: 0.55;
+}
+
+.campaign-card__work h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-base);
+  color: var(--green-dark);
+  margin-bottom: 2px;
+}
+
+.campaign-card__work p {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
   line-height: 1.5;
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid rgba(26, 45, 20, 0.15);
+  color: var(--green-dark);
+  opacity: 0.8;
 }
 
 /* --- Stats grid (2x2) --- */
 .campaign-card__stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-4) var(--space-5);
-  margin-top: var(--space-1);
+  grid-auto-flow: column;                  /* one row on the wide card, */
+  grid-auto-columns: minmax(0, 1fr);       /* however many stats a campaign reports */
+  gap: var(--space-3) var(--space-4);
 }
 
 .campaign-card__stat {
@@ -327,7 +786,7 @@ body {
 
 .campaign-card__stat dt {
   font-family: var(--font-body);
-  font-size: 0.6875rem;          /* ~11px small-caps feel */
+  font-size: 0.6875rem;
   font-weight: 500;
   color: var(--green-dark);
   opacity: 0.5;
@@ -338,46 +797,60 @@ body {
 .campaign-card__stat dd {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   color: var(--green-dark);
   line-height: 1.1;
 }
 
-/* --- Conversion callout — between hairlines, italic serif, red accent --- */
+/* --- Conversion callout: between hairlines, italic serif, red figure --- */
 .campaign-card__conversion {
   font-family: var(--font-display);
   font-style: italic;
   font-size: var(--text-sm);
   color: var(--green-dark);
   text-align: center;
-  padding: var(--space-3) 0;
+  padding: var(--space-2) 0;
   border-top: 1px solid var(--green-dark);
   border-bottom: 1px solid var(--green-dark);
 }
 
 .campaign-card__conversion strong {
-  font-family: var(--font-display);
   font-style: normal;
   font-weight: 600;
   color: var(--red);
 }
 
-/* --- CTA link --- */
-.campaign-card__link {
+/* --- Quote --- */
+.campaign-card__quote-toggle > summary {
+  cursor: pointer;
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--green-dark);
-  letter-spacing: 0.02em;
-  margin-top: var(--space-1);
+  list-style: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   transition: opacity var(--duration-fast) var(--ease-out);
 }
 
-.campaign-card__link:hover {
+.campaign-card__quote-toggle > summary::-webkit-details-marker {
+  display: none;
+}
+
+.campaign-card__quote-toggle > summary::marker {
+  content: "";
+}
+
+.campaign-card__quote-toggle > summary:hover {
   opacity: 0.7;
 }
 
-/* --- Testimonial (only renders when present) --- */
+.campaign-card__quote-toggle[open] > summary {
+  margin-bottom: var(--space-3);
+  opacity: 0.55;
+}
+
 .campaign-card__quote {
   font-family: var(--font-display);
   font-style: italic;
@@ -398,46 +871,363 @@ body {
   margin-top: var(--space-2);
 }
 
-/* --- Collapsible quote toggle --- */
-.campaign-card__quote-toggle {
-  margin-top: var(--space-1);
+/* --- Back footer: link + flip back, pinned under the scroll --- */
+.campaign-card__back-actions {
+  flex-shrink: 0;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid rgba(26, 45, 20, 0.15);
+  background: var(--beige);
 }
 
-.campaign-card__quote-toggle > summary {
-  cursor: pointer;
+.campaign-card__link {
+  flex: 1;
+  white-space: nowrap;
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--green-dark);
-  letter-spacing: 0.02em;
-  list-style: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   transition: opacity var(--duration-fast) var(--ease-out);
-  user-select: none;
 }
 
-.campaign-card__quote-toggle > summary::-webkit-details-marker {
-  display: none;
-}
-
-.campaign-card__quote-toggle > summary::marker {
-  content: "";
-}
-
-.campaign-card__quote-toggle > summary:hover {
+.campaign-card__link:hover {
   opacity: 0.7;
 }
 
-.campaign-card__quote-toggle[open] > summary {
-  margin-bottom: var(--space-3);
-  opacity: 0.55;
+/* ==============================
+   DECK NAV: arrows + active brand
+   ============================== */
+.deck-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  margin: var(--space-6) 0 var(--space-16);
+}
+
+.deck-nav[hidden] {
+  display: none;
+}
+
+.deck-nav__arrow {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--beige);
+  color: var(--green-dark);
+  border: 1.5px solid var(--green-dark);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    3px 3px 0 rgba(26, 45, 20, 0.12),
+    6px 6px 0 rgba(26, 45, 20, 0.06);
+  transition: background var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .deck-nav__arrow:hover {
+    background: var(--bg-surface);
+  }
+}
+
+.deck-nav__arrow:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(26, 45, 20, 0.12);
+}
+
+.deck-nav__arrow:focus {
+  outline: none;
+}
+
+.deck-nav__arrow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.deck-nav__caption {
+  min-width: 11rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.deck-nav__brand {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--green-dark);
+  line-height: 1.2;
+}
+
+.deck-nav__count {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+
+/* ==============================
+   PLAYER (Watch with sound)
+   ============================== */
+.campaign-player {
+  margin: auto;
+  padding: 0;
+  border: 1.5px solid var(--green-dark);
+  background: var(--green-dark);
+  max-width: 92vw;
+  max-height: 92vh;
+  max-height: 92dvh;
+  overflow: hidden;
+  box-shadow:
+    6px 6px 0 rgba(241, 233, 231, 0.12),
+    12px 12px 0 rgba(241, 233, 231, 0.06);
+}
+
+.campaign-player::backdrop {
+  background: rgba(26, 45, 20, 0.82);
+}
+
+.campaign-player[open] {
+  display: flex;
+  flex-direction: column;
+  animation: player-in 360ms var(--ease-out);
+}
+
+@keyframes player-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.campaign-player__frame {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+}
+
+/* The player takes the video's own aspect ratio (set by campaigns.js):
+   landscape sizes by width, vertical sizes by height. */
+.campaign-player__video {
+  display: block;
+  width: min(92vw, 960px, calc((92vh - 4rem) * 16 / 9));
+  width: min(92vw, 960px, calc((92dvh - 4rem) * 16 / 9));
+  height: auto;
+  object-fit: contain;
+  background: #000;
+}
+
+.campaign-player.is-portrait .campaign-player__video {
+  width: auto;
+  height: min(calc(92vh - 4rem), 820px);
+  height: min(calc(92dvh - 4rem), 820px);
+  max-width: 92vw;
+}
+
+.campaign-player__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+}
+
+.campaign-player__ig,
+.campaign-player__close {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--beige);
+}
+
+.campaign-player__ig {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.campaign-player__close {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  background: transparent;
+  border: 1.5px solid rgba(241, 233, 231, 0.6);
+  cursor: pointer;
+}
+
+.campaign-player__close:hover {
+  border-color: var(--beige);
+}
+
+.campaign-player__ig:focus-visible,
+.campaign-player__close:focus-visible {
+  outline: 2px solid var(--beige);
+  outline-offset: 2px;
+}
+
+/* ==============================
+   REDUCED MOTION: no tilt, no sheen, quick fades instead of swings
+   (campaigns.js also skips autoplay and the tilt loop)
+   ============================== */
+@media (prefers-reduced-motion: reduce) {
+  .campaign-card,
+  .campaign-card__face::after {
+    transition-duration: 1ms;
+  }
+
+  .campaign-player[open] {
+    animation: none;
+  }
+}
+
+/* ==============================
+   COMPACT CARD (container query)
+   Any card face under 420px wide: the front card on phones and the
+   smaller side cards everywhere. Keyed to the card, not the screen, so
+   a side card on desktop and a front card on a phone get the same fix.
+   ============================== */
+@container card (max-width: 420px) {
+  .campaign-card__logo {
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .campaign-card__logo img {
+    max-height: 1.3rem;
+  }
+
+  .campaign-card[data-brand="lg"] .campaign-card__logo img {
+    max-height: 0.85rem;
+  }
+
+  .campaign-card[data-brand="adobe-max-2025"] .campaign-card__logo img,
+  .campaign-card[data-brand="alterd"] .campaign-card__logo img {
+    max-height: 1rem;
+  }
+
+  /* Vertical-video label: the descriptor lives on the back anyway */
+  .campaign-card__aside {
+    justify-content: center;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .campaign-card__aside-desc {
+    display: none;
+  }
+
+  .campaign-card__hero-stat strong {
+    font-size: var(--text-2xl);
+  }
+
+  .campaign-card.is-portrait .campaign-card__foot {
+    padding: 0 var(--space-3) var(--space-3);
+  }
+
+  .campaign-card__foot {
+    padding: var(--space-8) var(--space-2) var(--space-2);
+  }
+
+  /* Back */
+  .campaign-card__back-head {
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .campaign-card__body {
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .campaign-card__stats {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .campaign-card__stat dd {
+    font-size: var(--text-lg);
+  }
+
+  .campaign-card__work h3 {
+    font-size: var(--text-sm);
+  }
+
+  .campaign-card__back-actions {
+    padding: var(--space-2) var(--space-3);
+  }
+}
+
+/* The back scrolls on small cards: fade its last line so it reads as
+   "more below" rather than cut off */
+@container card (max-width: 420px) {
+  .campaign-card__body {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
+    padding-bottom: var(--space-5);
+  }
+}
+
+/* ==============================
+   TOUCH
+   ============================== */
+@media (pointer: coarse) {
+  /* Finger-sized targets */
+  .campaign-card__actions .campaign-card__btn,
+  .campaign-card__back-actions .campaign-card__btn {
+    min-height: 44px;
+  }
+
+  .campaign-card__link {
+    padding: var(--space-3) 0;
+  }
+
+  .campaign-card__quote-toggle > summary {
+    padding: var(--space-2) 0;
+  }
+
+  /* A pinned link would float over the cards while scrolling */
+  .campaigns-back {
+    position: absolute;
+  }
 }
 
 /* ==============================
    RESPONSIVE
+   Card sizes by tier:
+   desktop  > 1100px : clamp(300px, 34vw, 460px)   (default, above)
+   tablet   641-1100 : up to 520px, ~56% of the screen
+   phone    <= 640   : 86% of the screen, max 360px
+   short landscape   : sized from the height so the whole card fits
    ============================== */
+@media (max-width: 1100px) {
+  .campaigns-deck {
+    --card-w: min(56vw, 520px);
+  }
+}
+
+/* Tablet held upright: tall screen, room for a bigger card */
+@media (min-width: 641px) and (max-width: 1100px) and (orientation: portrait) {
+  .campaigns-deck {
+    --card-w: min(66vw, 580px);
+  }
+}
+
 @media (max-width: 768px) {
   .campaigns {
-    padding: var(--space-8) var(--space-4) var(--space-12);
+    padding: var(--space-16) var(--space-4) var(--space-12);
+  }
+
+  .campaigns-back {
+    top: var(--space-4);
+    left: var(--space-4);
+  }
+
+  .campaigns-hero {
+    margin-bottom: var(--space-8);
   }
 
   .campaigns-hero__title {
@@ -448,34 +1238,94 @@ body {
     gap: var(--space-6);
   }
 
+  .campaigns-hero__stat strong {
+    font-size: var(--text-4xl);
+  }
+
+  .campaigns-hero__stat span {
+    font-size: var(--text-xs);
+  }
+
   .kpi-filter {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-2);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-6);
   }
 
   .kpi-filter__control {
     min-width: 0;
   }
 
-  .campaigns-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-6);
-  }
-
-  .campaign-card__logo {
-    padding: var(--space-4) var(--space-5);
-  }
-
-  .campaign-card__body {
-    padding: var(--space-5);
-  }
-
-  /* Reduce shadow offset on small screens to avoid horizontal overflow */
-  .campaign-card {
+  .campaign-card__face {
     box-shadow:
-      3px 3px 0 rgba(26, 45, 20, 0.12),
-      6px 6px 0 rgba(26, 45, 20, 0.06);
+      3px 3px 0 rgba(26, 45, 20, calc(0.12 * var(--keep))),
+      6px 6px 0 rgba(26, 45, 20, calc(0.06 * var(--keep)));
+  }
+
+  .deck-nav {
+    margin-bottom: var(--space-8);
+  }
+}
+
+@media (max-width: 640px) {
+  .campaigns-deck {
+    --card-w: min(86vw, 360px);
+  }
+
+  .campaigns-hero__lede {
+    font-size: var(--text-sm);
+  }
+}
+
+@media (max-width: 380px) {
+  .campaigns-hero__stats {
+    gap: var(--space-4);
+  }
+
+  .campaigns-hero__stat strong {
+    font-size: var(--text-3xl);
+  }
+}
+
+/* Phone on its side: little height, plenty of width */
+@media (max-height: 520px) and (orientation: landscape) {
+  .campaigns {
+    padding: var(--space-6) var(--space-6) var(--space-8);
+  }
+
+  .campaigns-hero {
+    margin-bottom: var(--space-4);
+  }
+
+  .campaigns-hero__title {
+    font-size: var(--text-2xl);
+  }
+
+  .campaigns-hero__lede {
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-3);
+  }
+
+  .campaigns-hero__stat strong {
+    font-size: var(--text-3xl);
+  }
+
+  .kpi-filter {
+    margin-bottom: var(--space-4);
+  }
+
+  .campaigns-deck {
+    --card-w: min(56vw, calc((100vh - 6rem) * 4 / 3));
+    --card-w: min(56vw, calc((100dvh - 6rem) * 4 / 3));
+  }
+
+  .deck-nav {
+    margin: var(--space-3) 0 var(--space-6);
+  }
+
+  /* The fixed footer would sit on the deck: let it flow at the end */
+  .hub-footer {
+    position: static;
   }
 }
